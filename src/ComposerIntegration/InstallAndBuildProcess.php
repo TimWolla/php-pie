@@ -48,6 +48,7 @@ class InstallAndBuildProcess
             $composerPackage,
         );
 
+        $builtBinaryFile = null;
         if ($composerRequest->operation->shouldBuild()) {
             $builtBinaryFile = ($this->pieBuild)(
                 $downloadedPackage,
@@ -75,6 +76,7 @@ class InstallAndBuildProcess
             ($this->pieInstall)(
                 $downloadedPackage,
                 $composerRequest->targetPlatform,
+                $builtBinaryFile,
                 $io,
                 $composerRequest->attemptToSetupIniFile,
             ),

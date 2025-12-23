@@ -6,6 +6,7 @@ namespace Php\Pie\Downloading;
 
 use Php\Pie\DependencyResolver\Package;
 use Php\Pie\Platform\OperatingSystem;
+use Php\Pie\Platform\PrePackagedBinaryAssetName;
 use Php\Pie\Platform\PrePackagedSourceAssetName;
 use Php\Pie\Platform\TargetPlatform;
 use Php\Pie\Platform\WindowsExtensionAssetName;
@@ -16,6 +17,7 @@ enum DownloadUrlMethod: string
     case ComposerDefaultDownload   = 'composer-default';
     case WindowsBinaryDownload     = 'windows-binary';
     case PrePackagedSourceDownload = 'pre-packaged-source';
+    case PrePackagedBinary         = 'pre-packaged-binary';
 
     /** @return non-empty-list<non-empty-string>|null */
     public function possibleAssetNames(Package $package, TargetPlatform $targetPlatform): array|null
@@ -24,6 +26,7 @@ enum DownloadUrlMethod: string
             self::WindowsBinaryDownload => WindowsExtensionAssetName::zipNames($targetPlatform, $package),
             self::PrePackagedSourceDownload => PrePackagedSourceAssetName::packageNames($package),
             self::ComposerDefaultDownload => null,
+            self::PrePackagedBinary => PrePackagedBinaryAssetName::packageNames($targetPlatform, $package),
         };
     }
 

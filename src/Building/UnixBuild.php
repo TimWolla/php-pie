@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Php\Pie\Building;
 
 use Composer\IO\IOInterface;
+use LogicException;
 use Php\Pie\ComposerIntegration\BundledPhpExtensionsRepository;
 use Php\Pie\Downloading\DownloadedPackage;
+use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\File\BinaryFile;
 use Php\Pie\Platform\TargetPhp\PhpizePath;
 use Php\Pie\Platform\TargetPlatform;
@@ -28,6 +30,45 @@ final class UnixBuild implements Build
 {
     /** {@inheritDoc} */
     public function __invoke(
+        DownloadedPackage $downloadedPackage,
+        TargetPlatform $targetPlatform,
+        array $configureOptions,
+        IOInterface $io,
+        PhpizePath|null $phpizePath,
+    ): BinaryFile {
+        switch (DownloadUrlMethod::fromPackage($downloadedPackage->package, $targetPlatform)) {
+            case DownloadUrlMethod::PrePackagedBinary:
+                return $this->prePackagedBinary($downloadedPackage, $io);
+
+            case DownloadUrlMethod::ComposerDefaultDownload:
+            case DownloadUrlMethod::PrePackagedSourceDownload:
+                return $this->buildFromSource($downloadedPackage, $targetPlatform, $configureOptions, $io, $phpizePath);
+
+            default:
+                throw new LogicException('Unknown download method');
+        }
+    }
+
+    private function prePackagedBinary(
+        DownloadedPackage $downloadedPackage,
+        IOInterface $io,
+    ): BinaryFile {
+        $expectedSoFile = $downloadedPackage->extractedSourcePath . '/' . $downloadedPackage->package->extensionName()->name() . '.so';
+
+        if (! file_exists($expectedSoFile)) {
+            throw ExtensionBinaryNotFound::fromExpectedBinary($expectedSoFile);
+        }
+
+        $io->write(sprintf(
+            '<info>Pre-packaged binary found:</info> %s',
+            $expectedSoFile,
+        ));
+
+        return BinaryFile::fromFileWithSha256Checksum($expectedSoFile);
+    }
+
+    /** @param list<non-empty-string> $configureOptions */
+    private function buildFromSource(
         DownloadedPackage $downloadedPackage,
         TargetPlatform $targetPlatform,
         array $configureOptions,

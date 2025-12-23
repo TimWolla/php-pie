@@ -6,11 +6,13 @@ namespace Php\Pie\Installing;
 
 use Composer\IO\IOInterface;
 use Php\Pie\Downloading\DownloadedPackage;
+use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\File\BinaryFile;
 use Php\Pie\File\Sudo;
 use Php\Pie\Platform\TargetPlatform;
 use Php\Pie\Util\Process;
 use RuntimeException;
+use Webmozart\Assert\Assert;
 
 use function array_unshift;
 use function file_exists;
@@ -29,6 +31,7 @@ final class UnixInstall implements Install
     public function __invoke(
         DownloadedPackage $downloadedPackage,
         TargetPlatform $targetPlatform,
+        BinaryFile|null $builtBinaryFile,
         IOInterface $io,
         bool $attemptToSetupIniFile,
     ): BinaryFile {
@@ -41,7 +44,19 @@ final class UnixInstall implements Install
             $sharedObjectName,
         );
 
-        $makeInstallCommand = ['make', 'install'];
+        switch (DownloadUrlMethod::fromPackage($downloadedPackage->package, $targetPlatform)) {
+            case DownloadUrlMethod::PrePackagedBinary:
+                Assert::notNull($builtBinaryFile);
+                $installCommand = [
+                    'cp',
+                    $builtBinaryFile->filePath,
+                    $targetExtensionPath,
+                ];
+                break;
+
+            default:
+                $installCommand = ['make', 'install'];
+        }
 
         // If the target directory isn't writable, or a .so file already exists and isn't writable, try to use sudo
         if (
@@ -55,11 +70,11 @@ final class UnixInstall implements Install
                 '<comment>Cannot write to %s, so using sudo to elevate privileges.</comment>',
                 $targetExtensionPath,
             ));
-            array_unshift($makeInstallCommand, Sudo::find());
+            array_unshift($installCommand, Sudo::find());
         }
 
         $makeInstallOutput = Process::run(
-            $makeInstallCommand,
+            $installCommand,
             $downloadedPackage->extractedSourcePath,
             self::MAKE_INSTALL_TIMEOUT_SECS,
         );

@@ -91,7 +91,7 @@ final class UnixInstallTest extends TestCase
             self::TEST_EXTENSION_PATH,
         );
 
-        (new UnixBuild())->__invoke(
+        $built = (new UnixBuild())->__invoke(
             $downloadedPackage,
             $targetPlatform,
             ['--enable-pie_test_ext'],
@@ -102,6 +102,7 @@ final class UnixInstallTest extends TestCase
         $installedSharedObject = (new UnixInstall(new SetupIniFile(new PickBestSetupIniApproach([]))))->__invoke(
             $downloadedPackage,
             $targetPlatform,
+            $built,
             $output,
             true,
         );
