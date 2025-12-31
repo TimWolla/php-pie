@@ -17,6 +17,8 @@ use Php\Pie\DependencyResolver\Package;
 use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\Downloading\PackageReleaseAssets;
 use Psr\Container\ContainerInterface;
+use RuntimeException;
+use Throwable;
 
 use function array_walk;
 use function pathinfo;
@@ -69,38 +71,65 @@ class OverrideDownloadUrlInstallListener
                     return;
                 }
 
-                $piePackage        = Package::fromComposerCompletePackage($composerPackage);
-                $targetPlatform    = $this->composerRequest->targetPlatform;
-                $downloadUrlMethod = DownloadUrlMethod::fromPackage($piePackage, $targetPlatform);
+                $piePackage         = Package::fromComposerCompletePackage($composerPackage);
+                $targetPlatform     = $this->composerRequest->targetPlatform;
+                $downloadUrlMethods = DownloadUrlMethod::possibleDownloadUrlMethodsForPackage($piePackage, $targetPlatform);
 
-                // Exit early if we should just use Composer's normal download
-                if ($downloadUrlMethod === DownloadUrlMethod::ComposerDefaultDownload) {
-                    return;
+                $selectedDownloadUrlMethod = null;
+
+                foreach ($downloadUrlMethods as $downloadUrlMethod) {
+                    $this->io->write('Trying: ' . $downloadUrlMethod->value); // @todo 436 verbosity
+
+                    // Exit early if we should just use Composer's normal download
+                    if ($downloadUrlMethod === DownloadUrlMethod::ComposerDefaultDownload) {
+                        $selectedDownloadUrlMethod = $downloadUrlMethod;
+                        break;
+                    }
+
+                    try {
+                        $possibleAssetNames = $downloadUrlMethod->possibleAssetNames($piePackage, $targetPlatform);
+                    } catch (Throwable $t) {
+                        $this->io->write('Failed fetching asset names [' . $downloadUrlMethod->value . ']: ' . $t->getMessage()); // @todo 436 verbosity
+                        continue;
+                    }
+
+                    if ($possibleAssetNames === null) {
+                        $this->io->write('Failed fetching asset names [' . $downloadUrlMethod->value . ']: No asset names'); // @todo 436 verbosity
+                        continue;
+                    }
+
+                    // @todo https://github.com/php/pie/issues/138 will need to depend on the repo type (GH/GL/BB/etc.)
+                    $packageReleaseAssets = $this->container->get(PackageReleaseAssets::class);
+
+                    try {
+                        $url = $packageReleaseAssets->findMatchingReleaseAssetUrl(
+                            $targetPlatform,
+                            $piePackage,
+                            new HttpDownloader($this->io, $this->composer->getConfig()),
+                            $possibleAssetNames,
+                        );
+                    } catch (Throwable $t) {
+                        $this->io->write('Failed locating asset [' . $downloadUrlMethod->value . ']: ' . $t->getMessage()); // @todo 436 verbosity
+                        continue;
+                    }
+
+                    $this->composerRequest->pieOutput->write('Found prebuilt archive: ' . $url);
+                    $composerPackage->setDistUrl($url);
+
+                    if (pathinfo($url, PATHINFO_EXTENSION) === 'tgz') {
+                        $composerPackage->setDistType('tar');
+                    }
+
+                    $selectedDownloadUrlMethod = $downloadUrlMethod;
+                    break;
                 }
 
-                $possibleAssetNames = $downloadUrlMethod->possibleAssetNames($piePackage, $targetPlatform);
-                if ($possibleAssetNames === null) {
-                    return;
+                if ($selectedDownloadUrlMethod === null) {
+                    throw new RuntimeException('No download method could be found for ' . $piePackage->name()); // @todo 436 improve message, will need to give more info!
                 }
 
-                // @todo https://github.com/php/pie/issues/138 will need to depend on the repo type (GH/GL/BB/etc.)
-                $packageReleaseAssets = $this->container->get(PackageReleaseAssets::class);
-
-                $url = $packageReleaseAssets->findMatchingReleaseAssetUrl(
-                    $targetPlatform,
-                    $piePackage,
-                    new HttpDownloader($this->io, $this->composer->getConfig()),
-                    $possibleAssetNames,
-                );
-
-                $this->composerRequest->pieOutput->write('Found prebuilt archive: ' . $url);
-                $composerPackage->setDistUrl($url);
-
-                if (pathinfo($url, PATHINFO_EXTENSION) !== 'tgz') {
-                    return;
-                }
-
-                $composerPackage->setDistType('tar');
+                $selectedDownloadUrlMethod->writeToComposerPackage($composerPackage);
+                $this->io->write('<info>FINALLY SETTLED on using download URL method: ' . $selectedDownloadUrlMethod->value . '</info>'); // @todo 436 verbosity
             },
         );
     }

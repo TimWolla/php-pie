@@ -44,7 +44,7 @@ final class UnixInstall implements Install
             $sharedObjectName,
         );
 
-        switch (DownloadUrlMethod::fromPackage($downloadedPackage->package, $targetPlatform)) {
+        switch (DownloadUrlMethod::fromDownloadedPackage($downloadedPackage)) {
             case DownloadUrlMethod::PrePackagedBinary:
                 Assert::notNull($builtBinaryFile);
                 $installCommand = [

@@ -42,7 +42,8 @@ final class Package
     private array|null $incompatibleOsFamilies        = null;
     private bool $supportZts                          = true;
     private bool $supportNts                          = true;
-    private DownloadUrlMethod|null $downloadUrlMethod = null;
+    /** @var non-empty-list<DownloadUrlMethod>|null */
+    private array|null $supportedDownloadUrlMethods = null;
 
     public function __construct(
         private readonly CompletePackageInterface $composerPackage,
@@ -91,17 +92,15 @@ final class Package
         $package->priority = $phpExtOptions['priority'] ?? 80;
 
         if ($phpExtOptions !== null && array_key_exists('download-url-method', $phpExtOptions)) {
-            /** @var string|list<string> $method */
-            $method = $phpExtOptions['download-url-method'];
-            if (is_array($method)) {
-                if (count($method) === 1) {
-                    $method = $method[0];
-                } else {
-                    $method = DownloadUrlMethod::ComposerDefaultDownload->value;
-                }
+            /** @var string|list<string> $extOptionValue */
+            $extOptionValue = $phpExtOptions['download-url-method'];
+            $methods        = is_array($extOptionValue) ? $extOptionValue : [$extOptionValue];
+            if (count($methods) > 0) {
+                $package->supportedDownloadUrlMethods = array_map(
+                    static fn (string $method): DownloadUrlMethod => DownloadUrlMethod::from($method),
+                    $methods,
+                );
             }
-
-            $package->downloadUrlMethod = DownloadUrlMethod::tryFrom($method);
         }
 
         return $package;
@@ -231,8 +230,9 @@ final class Package
         return $this->supportNts;
     }
 
-    public function downloadUrlMethod(): DownloadUrlMethod|null
+    /** @return non-empty-list<DownloadUrlMethod>|null */
+    public function supportedDownloadUrlMethods(): array|null
     {
-        return $this->downloadUrlMethod;
+        return $this->supportedDownloadUrlMethods;
     }
 }

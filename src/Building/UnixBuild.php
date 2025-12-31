@@ -36,7 +36,7 @@ final class UnixBuild implements Build
         IOInterface $io,
         PhpizePath|null $phpizePath,
     ): BinaryFile {
-        switch (DownloadUrlMethod::fromPackage($downloadedPackage->package, $targetPlatform)) {
+        switch (DownloadUrlMethod::fromDownloadedPackage($downloadedPackage)) {
             case DownloadUrlMethod::PrePackagedBinary:
                 return $this->prePackagedBinary($downloadedPackage, $io);
 
