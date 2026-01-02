@@ -106,6 +106,7 @@ class OverrideDownloadUrlInstallListener
                             $targetPlatform,
                             $piePackage,
                             new HttpDownloader($this->io, $this->composer->getConfig()),
+                            $downloadUrlMethod,
                             $possibleAssetNames,
                         );
                     } catch (Throwable $t) {

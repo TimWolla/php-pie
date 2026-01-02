@@ -31,12 +31,14 @@ final class GithubPackageReleaseAssets implements PackageReleaseAssets
         TargetPlatform $targetPlatform,
         Package $package,
         HttpDownloader $httpDownloader,
+        DownloadUrlMethod $downloadUrlMethod,
         array $possibleReleaseAssetNames,
     ): string {
         $releaseAsset = $this->selectMatchingReleaseAsset(
             $targetPlatform,
             $package,
-            $this->getReleaseAssetsForPackage($package, $httpDownloader),
+            $this->getReleaseAssetsForPackage($package, $httpDownloader, $downloadUrlMethod),
+            $downloadUrlMethod,
             $possibleReleaseAssetNames,
         );
 
@@ -56,6 +58,7 @@ final class GithubPackageReleaseAssets implements PackageReleaseAssets
         TargetPlatform $targetPlatform,
         Package $package,
         array $releaseAssets,
+        DownloadUrlMethod $downloadUrlMethod,
         array $possibleReleaseAssetNames,
     ): array {
         foreach ($releaseAssets as $releaseAsset) {
@@ -64,13 +67,14 @@ final class GithubPackageReleaseAssets implements PackageReleaseAssets
             }
         }
 
-        throw Exception\CouldNotFindReleaseAsset::forPackage($targetPlatform, $package, $possibleReleaseAssetNames);
+        throw Exception\CouldNotFindReleaseAsset::forPackage($targetPlatform, $package, $downloadUrlMethod, $possibleReleaseAssetNames);
     }
 
     /** @return list<array{name: non-empty-string, browser_download_url: non-empty-string, ...}> */
     private function getReleaseAssetsForPackage(
         Package $package,
         HttpDownloader $httpDownloader,
+        DownloadUrlMethod $downloadUrlMethod,
     ): array {
         Assert::notNull($package->downloadUrl());
 
@@ -88,7 +92,7 @@ final class GithubPackageReleaseAssets implements PackageReleaseAssets
         } catch (TransportException $t) {
             /** @link https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-a-release-by-tag-name */
             if ($t->getStatusCode() === 404) {
-                throw Exception\CouldNotFindReleaseAsset::forPackageWithMissingTag($package);
+                throw Exception\CouldNotFindReleaseAsset::forPackageWithMissingTag($package, $downloadUrlMethod);
             }
 
             throw $t;

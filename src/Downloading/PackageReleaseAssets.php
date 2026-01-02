@@ -20,6 +20,7 @@ interface PackageReleaseAssets
         TargetPlatform $targetPlatform,
         Package $package,
         HttpDownloader $httpDownloader,
+        DownloadUrlMethod $downloadUrlMethod,
         array $possibleReleaseAssetNames,
     ): string;
 }
