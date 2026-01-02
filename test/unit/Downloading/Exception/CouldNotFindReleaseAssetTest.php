@@ -6,6 +6,7 @@ namespace Php\PieUnitTest\Downloading\Exception;
 
 use Composer\Package\CompletePackageInterface;
 use Php\Pie\DependencyResolver\Package;
+use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\Downloading\Exception\CouldNotFindReleaseAsset;
 use Php\Pie\ExtensionName;
 use Php\Pie\ExtensionType;
@@ -44,6 +45,7 @@ final class CouldNotFindReleaseAssetTest extends TestCase
                 null,
             ),
             $package,
+            DownloadUrlMethod::PrePackagedSourceDownload,
             ['something.zip', 'something2.zip'],
         );
 
@@ -72,6 +74,7 @@ final class CouldNotFindReleaseAssetTest extends TestCase
                 WindowsCompiler::VS17,
             ),
             $package,
+            DownloadUrlMethod::WindowsBinaryDownload,
             ['something.zip', 'something2.zip'],
         );
 
@@ -89,7 +92,7 @@ final class CouldNotFindReleaseAssetTest extends TestCase
             null,
         );
 
-        $exception = CouldNotFindReleaseAsset::forPackageWithMissingTag($package);
+        $exception = CouldNotFindReleaseAsset::forPackageWithMissingTag($package, DownloadUrlMethod::PrePackagedSourceDownload);
 
         self::assertSame('Could not find release by tag name for foo/bar:1.2.3', $exception->getMessage());
     }

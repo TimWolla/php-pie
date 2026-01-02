@@ -9,6 +9,7 @@ use Composer\IO\NullIO;
 use Composer\Package\CompletePackageInterface;
 use Composer\Util\HttpDownloader;
 use Php\Pie\DependencyResolver\Package;
+use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\Downloading\GithubPackageReleaseAssets;
 use Php\Pie\ExtensionName;
 use Php\Pie\ExtensionType;
@@ -65,6 +66,7 @@ final class GithubPackageReleaseAssetsTest extends TestCase
                     $targetPlatform,
                     $package,
                     new HttpDownloader($io, $config),
+                    DownloadUrlMethod::WindowsBinaryDownload,
                     WindowsExtensionAssetName::zipNames(
                         $targetPlatform,
                         $package,

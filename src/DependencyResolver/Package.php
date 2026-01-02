@@ -39,9 +39,9 @@ final class Package
     /** @var non-empty-list<OperatingSystemFamily>|null */
     private array|null $compatibleOsFamilies = null;
     /** @var non-empty-list<OperatingSystemFamily>|null */
-    private array|null $incompatibleOsFamilies        = null;
-    private bool $supportZts                          = true;
-    private bool $supportNts                          = true;
+    private array|null $incompatibleOsFamilies = null;
+    private bool $supportZts                   = true;
+    private bool $supportNts                   = true;
     /** @var non-empty-list<DownloadUrlMethod>|null */
     private array|null $supportedDownloadUrlMethods = null;
 

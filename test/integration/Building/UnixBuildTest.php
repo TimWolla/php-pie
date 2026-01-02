@@ -11,6 +11,7 @@ use Php\Pie\Building\ExtensionBinaryNotFound;
 use Php\Pie\Building\UnixBuild;
 use Php\Pie\DependencyResolver\Package;
 use Php\Pie\Downloading\DownloadedPackage;
+use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\ExtensionName;
 use Php\Pie\ExtensionType;
 use Php\Pie\Platform\TargetPhp\PhpBinaryPath;
@@ -25,7 +26,8 @@ use function dirname;
 #[CoversClass(UnixBuild::class)]
 final class UnixBuildTest extends TestCase
 {
-    private const TEST_EXTENSION_PATH = __DIR__ . '/../../assets/pie_test_ext';
+    private const COMPOSER_PACKAGE_EXTRA_KEY = 'download-url-method';
+    private const TEST_EXTENSION_PATH        = __DIR__ . '/../../assets/pie_test_ext';
 
     public function testUnixBuildCanBuildExtension(): void
     {
@@ -35,9 +37,14 @@ final class UnixBuildTest extends TestCase
 
         $output = new BufferIO();
 
+        $composerPackage = $this->createMock(CompletePackageInterface::class);
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::ComposerDefaultDownload->value]);
+
         $downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(
             new Package(
-                $this->createMock(CompletePackageInterface::class),
+                $composerPackage,
                 ExtensionType::PhpModule,
                 ExtensionName::normaliseFromString('pie_test_ext'),
                 'pie_test_ext',
@@ -84,9 +91,14 @@ final class UnixBuildTest extends TestCase
 
         $output = new BufferIO();
 
+        $composerPackage = $this->createMock(CompletePackageInterface::class);
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::ComposerDefaultDownload->value]);
+
         $downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(
             new Package(
-                $this->createMock(CompletePackageInterface::class),
+                $composerPackage,
                 ExtensionType::PhpModule,
                 ExtensionName::normaliseFromString('mismatched_name'),
                 'pie_test_ext',
@@ -126,6 +138,9 @@ final class UnixBuildTest extends TestCase
         $composerPackage->method('getPrettyVersion')->willReturn('0.1.0');
         $composerPackage->method('getType')->willReturn('php-ext');
         $composerPackage->method('getPhpExt')->willReturn(['build-path' => 'pie_test_ext']);
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::ComposerDefaultDownload->value]);
 
         $downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(
             Package::fromComposerCompletePackage($composerPackage),
@@ -172,9 +187,14 @@ final class UnixBuildTest extends TestCase
 
         $output = new BufferIO(verbosity: OutputInterface::VERBOSITY_VERBOSE);
 
+        $composerPackage = $this->createMock(CompletePackageInterface::class);
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::ComposerDefaultDownload->value]);
+
         $downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(
             new Package(
-                $this->createMock(CompletePackageInterface::class),
+                $composerPackage,
                 ExtensionType::PhpModule,
                 ExtensionName::normaliseFromString('pie_test_ext'),
                 'pie_test_ext',
@@ -209,9 +229,14 @@ final class UnixBuildTest extends TestCase
 
         $output = new BufferIO(verbosity: OutputInterface::VERBOSITY_VERBOSE);
 
+        $composerPackage = $this->createMock(CompletePackageInterface::class);
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::ComposerDefaultDownload->value]);
+
         $downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(
             new Package(
-                $this->createMock(CompletePackageInterface::class),
+                $composerPackage,
                 ExtensionType::PhpModule,
                 ExtensionName::normaliseFromString('pie_test_ext'),
                 'pie_test_ext',

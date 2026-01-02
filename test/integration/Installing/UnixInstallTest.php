@@ -10,6 +10,7 @@ use Composer\Util\Platform;
 use Php\Pie\Building\UnixBuild;
 use Php\Pie\DependencyResolver\Package;
 use Php\Pie\Downloading\DownloadedPackage;
+use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\ExtensionName;
 use Php\Pie\ExtensionType;
 use Php\Pie\Installing\Ini\PickBestSetupIniApproach;
@@ -34,7 +35,8 @@ use function is_writable;
 #[CoversClass(UnixInstall::class)]
 final class UnixInstallTest extends TestCase
 {
-    private const TEST_EXTENSION_PATH = __DIR__ . '/../../assets/pie_test_ext';
+    private const COMPOSER_PACKAGE_EXTRA_KEY = 'download-url-method';
+    private const TEST_EXTENSION_PATH        = __DIR__ . '/../../assets/pie_test_ext';
 
     /** @return array<string, array{0: non-empty-string}> */
     public static function phpPathProvider(): array
@@ -79,9 +81,14 @@ final class UnixInstallTest extends TestCase
         $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromPhpConfigExecutable($phpConfig), null);
         $extensionPath  = $targetPlatform->phpBinaryPath->extensionPath();
 
+        $composerPackage = $this->createMock(CompletePackageInterface::class);
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::ComposerDefaultDownload->value]);
+
         $downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(
             new Package(
-                $this->createMock(CompletePackageInterface::class),
+                $composerPackage,
                 ExtensionType::PhpModule,
                 ExtensionName::normaliseFromString('pie_test_ext'),
                 'pie_test_ext',

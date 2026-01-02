@@ -21,7 +21,7 @@ use function method_exists;
 /** @internal This is not public API for PIE, so should not be depended upon unless you accept the risk of BC breaks */
 enum DownloadUrlMethod: string
 {
-    public const COMPOSER_PACKAGE_EXTRA_KEY = 'download-url-method';
+    private const COMPOSER_PACKAGE_EXTRA_KEY = 'download-url-method';
 
     case ComposerDefaultDownload   = 'composer-default';
     case WindowsBinaryDownload     = 'windows-binary';

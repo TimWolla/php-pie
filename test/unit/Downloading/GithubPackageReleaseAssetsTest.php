@@ -9,6 +9,7 @@ use Composer\Package\CompletePackageInterface;
 use Composer\Util\Http\Response;
 use Composer\Util\HttpDownloader;
 use Php\Pie\DependencyResolver\Package;
+use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\Downloading\Exception\CouldNotFindReleaseAsset;
 use Php\Pie\Downloading\GithubPackageReleaseAssets;
 use Php\Pie\ExtensionName;
@@ -86,6 +87,7 @@ final class GithubPackageReleaseAssetsTest extends TestCase
                 $targetPlatform,
                 $package,
                 $httpDownloader,
+                DownloadUrlMethod::WindowsBinaryDownload,
                 WindowsExtensionAssetName::zipNames(
                     $targetPlatform,
                     $package,
@@ -151,6 +153,7 @@ final class GithubPackageReleaseAssetsTest extends TestCase
                 $targetPlatform,
                 $package,
                 $httpDownloader,
+                DownloadUrlMethod::WindowsBinaryDownload,
                 WindowsExtensionAssetName::zipNames(
                     $targetPlatform,
                     $package,
@@ -196,6 +199,7 @@ final class GithubPackageReleaseAssetsTest extends TestCase
             $targetPlatform,
             $package,
             $httpDownloader,
+            DownloadUrlMethod::WindowsBinaryDownload,
             WindowsExtensionAssetName::zipNames(
                 $targetPlatform,
                 $package,
