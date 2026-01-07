@@ -6,6 +6,8 @@ namespace Php\Pie\Platform;
 
 use Php\Pie\DependencyResolver\Package;
 
+use function array_unique;
+use function array_values;
 use function sprintf;
 use function strtolower;
 
@@ -19,17 +21,47 @@ final class PrePackagedBinaryAssetName
     /** @return non-empty-list<non-empty-string> */
     public static function packageNames(TargetPlatform $targetPlatform, Package $package): array
     {
-        return [
-            strtolower(sprintf( // @todo 436 - confirm naming; check if compatible with existing packages
-                'php_%s-%s_php%s-%s-%s-%s-%s.tgz',
+        return array_values(array_unique([
+            strtolower(sprintf(
+                'php_%s-%s_php%s-%s-%s%s%s.zip',
                 $package->extensionName()->name(),
                 $package->version(),
                 $targetPlatform->phpBinaryPath->majorMinorVersion(),
                 $targetPlatform->architecture->name,
                 $targetPlatform->libcFlavour()->value,
-                $targetPlatform->phpBinaryPath->debugMode()->value,
-                $targetPlatform->threadSafety->asShort(),
+                $targetPlatform->phpBinaryPath->debugMode() === DebugBuild::Debug ? '-debug' : '',
+                $targetPlatform->threadSafety === ThreadSafetyMode::ThreadSafe ? '-zts' : '',
             )),
-        ];
+            strtolower(sprintf(
+                'php_%s-%s_php%s-%s-%s%s%s.tgz',
+                $package->extensionName()->name(),
+                $package->version(),
+                $targetPlatform->phpBinaryPath->majorMinorVersion(),
+                $targetPlatform->architecture->name,
+                $targetPlatform->libcFlavour()->value,
+                $targetPlatform->phpBinaryPath->debugMode() === DebugBuild::Debug ? '-debug' : '',
+                $targetPlatform->threadSafety === ThreadSafetyMode::ThreadSafe ? '-zts' : '',
+            )),
+            strtolower(sprintf(
+                'php_%s-%s_php%s-%s-%s%s%s.zip',
+                $package->extensionName()->name(),
+                $package->version(),
+                $targetPlatform->phpBinaryPath->majorMinorVersion(),
+                $targetPlatform->architecture->name,
+                $targetPlatform->libcFlavour()->value,
+                $targetPlatform->phpBinaryPath->debugMode() === DebugBuild::Debug ? '-debug' : '',
+                $targetPlatform->threadSafety === ThreadSafetyMode::ThreadSafe ? '-zts' : '-nts',
+            )),
+            strtolower(sprintf(
+                'php_%s-%s_php%s-%s-%s%s%s.tgz',
+                $package->extensionName()->name(),
+                $package->version(),
+                $targetPlatform->phpBinaryPath->majorMinorVersion(),
+                $targetPlatform->architecture->name,
+                $targetPlatform->libcFlavour()->value,
+                $targetPlatform->phpBinaryPath->debugMode() === DebugBuild::Debug ? '-debug' : '',
+                $targetPlatform->threadSafety === ThreadSafetyMode::ThreadSafe ? '-zts' : '-nts',
+            )),
+        ]));
     }
 }
