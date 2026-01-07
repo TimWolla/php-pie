@@ -9,6 +9,7 @@ use Composer\Semver\VersionParser;
 use Composer\Util\Platform;
 use Php\Pie\ExtensionName;
 use Php\Pie\Platform\Architecture;
+use Php\Pie\Platform\DebugBuild;
 use Php\Pie\Platform\OperatingSystem;
 use Php\Pie\Platform\OperatingSystemFamily;
 use Php\Pie\Util\Process;
@@ -84,6 +85,18 @@ class PhpBinaryPath
             && $m[2] !== ''
         ) {
             return $m[2];
+        }
+
+        throw new RuntimeException('Failed to find PHP API version...');
+    }
+
+    public function debugMode(): DebugBuild
+    {
+        if (
+            preg_match('/Debug Build([ =>\t]*)(.*)/', $this->phpinfo(), $m)
+            && $m[2] !== ''
+        ) {
+            return $m[2] === 'yes' ? DebugBuild::Debug : DebugBuild::NoDebug;
         }
 
         throw new RuntimeException('Failed to find PHP API version...');

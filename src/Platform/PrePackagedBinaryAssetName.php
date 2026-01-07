@@ -27,7 +27,7 @@ final class PrePackagedBinaryAssetName
                 $targetPlatform->phpBinaryPath->majorMinorVersion(),
                 $targetPlatform->architecture->name,
                 $targetPlatform->libcFlavour()->value,
-                DebugBuild::Debug->value, // @todo 436 - detect debug mode
+                $targetPlatform->phpBinaryPath->debugMode()->value,
                 $targetPlatform->threadSafety->asShort(),
             )),
         ];
