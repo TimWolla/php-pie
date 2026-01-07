@@ -26,7 +26,7 @@ final class PrePackagedBinaryAssetName
                 $package->version(),
                 $targetPlatform->phpBinaryPath->majorMinorVersion(),
                 $targetPlatform->architecture->name,
-                LibcFlavour::Gnu->value, // @todo 436 - detect libc flavour
+                $targetPlatform->libcFlavour()->value,
                 DebugBuild::Debug->value, // @todo 436 - detect debug mode
                 $targetPlatform->threadSafety->asShort(),
             )),
