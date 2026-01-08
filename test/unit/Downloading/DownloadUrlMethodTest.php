@@ -10,6 +10,7 @@ use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\ExtensionName;
 use Php\Pie\ExtensionType;
 use Php\Pie\Platform\Architecture;
+use Php\Pie\Platform\DebugBuild;
 use Php\Pie\Platform\OperatingSystem;
 use Php\Pie\Platform\OperatingSystemFamily;
 use Php\Pie\Platform\TargetPhp\PhpBinaryPath;
@@ -114,16 +115,19 @@ final class DownloadUrlMethodTest extends TestCase
         $package = Package::fromComposerCompletePackage($composerPackage);
 
         $phpBinaryPath = $this->createMock(PhpBinaryPath::class);
-        $phpBinaryPath->expects(self::any())
+        $phpBinaryPath
             ->method('majorMinorVersion')
             ->willReturn('8.3');
+        $phpBinaryPath
+            ->method('debugMode')
+            ->willReturn(DebugBuild::Debug);
 
         $targetPlatform = new TargetPlatform(
             OperatingSystem::NonWindows,
             OperatingSystemFamily::Linux,
             $phpBinaryPath,
             Architecture::x86_64,
-            ThreadSafetyMode::NonThreadSafe,
+            ThreadSafetyMode::ThreadSafe,
             1,
             null,
         );
@@ -136,7 +140,10 @@ final class DownloadUrlMethodTest extends TestCase
         self::assertSame(DownloadUrlMethod::PrePackagedBinary, $downloadUrlMethod);
 
         self::assertSame(
-            ['php_bar-1.2.3_php8.3-x86_64-glibc-debug-nts.tgz'],
+            [
+                'php_bar-1.2.3_php8.3-x86_64-glibc-debug-zts.zip',
+                'php_bar-1.2.3_php8.3-x86_64-glibc-debug-zts.tgz',
+            ],
             $downloadUrlMethod->possibleAssetNames($package, $targetPlatform),
         );
     }
@@ -183,9 +190,12 @@ final class DownloadUrlMethodTest extends TestCase
         $package = Package::fromComposerCompletePackage($composerPackage);
 
         $phpBinaryPath = $this->createMock(PhpBinaryPath::class);
-        $phpBinaryPath->expects(self::any())
+        $phpBinaryPath
             ->method('majorMinorVersion')
             ->willReturn('8.3');
+        $phpBinaryPath
+            ->method('debugMode')
+            ->willReturn(DebugBuild::Debug);
 
         $targetPlatform = new TargetPlatform(
             OperatingSystem::NonWindows,
@@ -204,7 +214,12 @@ final class DownloadUrlMethodTest extends TestCase
         $firstMethod = $downloadUrlMethods[0];
         self::assertSame(DownloadUrlMethod::PrePackagedBinary, $firstMethod);
         self::assertSame(
-            ['php_bar-1.2.3_php8.3-x86_64-glibc-debug-nts.tgz'],
+            [
+                'php_bar-1.2.3_php8.3-x86_64-glibc-debug.zip',
+                'php_bar-1.2.3_php8.3-x86_64-glibc-debug.tgz',
+                'php_bar-1.2.3_php8.3-x86_64-glibc-debug-nts.zip',
+                'php_bar-1.2.3_php8.3-x86_64-glibc-debug-nts.tgz',
+            ],
             $firstMethod->possibleAssetNames($package, $targetPlatform),
         );
 

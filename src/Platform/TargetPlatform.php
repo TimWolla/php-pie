@@ -21,7 +21,7 @@ use function trim;
  */
 class TargetPlatform
 {
-    private static LibcFlavour|null $libcFlavour;
+    private static LibcFlavour $libcFlavour;
 
     public function __construct(
         public readonly OperatingSystem $operatingSystem,
