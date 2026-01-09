@@ -41,7 +41,12 @@ enum DownloadUrlMethod: string
 
     public static function fromDownloadedPackage(DownloadedPackage $downloadedPackage): self
     {
-        $extra = $downloadedPackage->package->composerPackage()->getExtra();
+        return self::fromComposerPackage($downloadedPackage->package->composerPackage());
+    }
+
+    public static function fromComposerPackage(CompletePackageInterface $completePackage): self
+    {
+        $extra = $completePackage->getExtra();
 
         return self::from(array_key_exists(self::COMPOSER_PACKAGE_EXTRA_KEY, $extra) && is_string($extra[self::COMPOSER_PACKAGE_EXTRA_KEY]) ? $extra[self::COMPOSER_PACKAGE_EXTRA_KEY] : '');
     }

@@ -29,7 +29,7 @@ final class UnixBuildTest extends TestCase
     private const COMPOSER_PACKAGE_EXTRA_KEY = 'download-url-method';
     private const TEST_EXTENSION_PATH        = __DIR__ . '/../../assets/pie_test_ext';
 
-    public function testUnixBuildCanBuildExtension(): void
+    public function testUnixSourceBuildCanBuildExtension(): void
     {
         if (Platform::isWindows()) {
             self::markTestSkipped('Unix build test cannot be run on Windows');
@@ -83,7 +83,7 @@ final class UnixBuildTest extends TestCase
         (new Process(['phpize', '--clean'], $downloadedPackage->extractedSourcePath))->mustRun();
     }
 
-    public function testUnixBuildWillThrowExceptionWhenExpectedBinaryNameMismatches(): void
+    public function testUnixSourceBuildWillThrowExceptionWhenExpectedBinaryNameMismatches(): void
     {
         if (Platform::isWindows()) {
             self::markTestSkipped('Unix build test cannot be run on Windows');
@@ -125,7 +125,7 @@ final class UnixBuildTest extends TestCase
         }
     }
 
-    public function testUnixBuildCanBuildExtensionWithBuildPath(): void
+    public function testUnixSourceBuildCanBuildExtensionWithBuildPath(): void
     {
         if (Platform::isWindows()) {
             self::markTestSkipped('Unix build test cannot be run on Windows');
@@ -174,6 +174,16 @@ final class UnixBuildTest extends TestCase
 
         (new Process(['make', 'clean'], $downloadedPackage->extractedSourcePath))->mustRun();
         (new Process(['phpize', '--clean'], $downloadedPackage->extractedSourcePath))->mustRun();
+    }
+
+    public function testUnixBinaryBuildThrowsErrorWhenBinaryFileNotFound(): void
+    {
+        self::fail('todo'); // @todo 436
+    }
+
+    public function testUnixBinaryBuildReturnsBinaryFile(): void
+    {
+        self::fail('todo'); // @todo 436
     }
 
     public function testCleanupDoesNotCleanWhenConfigureIsMissing(): void

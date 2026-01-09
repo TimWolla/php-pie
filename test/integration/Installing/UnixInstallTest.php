@@ -70,7 +70,7 @@ final class UnixInstallTest extends TestCase
     }
 
     #[DataProvider('phpPathProvider')]
-    public function testUnixInstallCanInstallExtension(string $phpConfig): void
+    public function testUnixInstallCanInstallExtensionBuiltFromSource(string $phpConfig): void
     {
         assert($phpConfig !== '');
         if (Platform::isWindows()) {
@@ -129,5 +129,10 @@ final class UnixInstallTest extends TestCase
         (new Process($rmCommand))->mustRun();
         (new Process(['make', 'clean'], $downloadedPackage->extractedSourcePath))->mustRun();
         (new Process(['phpize', '--clean'], $downloadedPackage->extractedSourcePath))->mustRun();
+    }
+
+    public function testUnixInstallCanInstallPrePackagedBinary(): void
+    {
+        self::fail('todo'); // @todo 436
     }
 }

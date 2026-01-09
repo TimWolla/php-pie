@@ -445,4 +445,14 @@ final class PhpBinaryPathTest extends TestCase
 
         self::assertNull($phpBinary->buildProvider());
     }
+
+    public function testDebugBuildModeReturnsDebugWhenYes(): void
+    {
+        self::fail('todo'); // @todo 436
+    }
+
+    public function testDebugBuildModeReturnsNoDebugWhenNo(): void
+    {
+        self::fail('todo'); // @todo 436
+    }
 }

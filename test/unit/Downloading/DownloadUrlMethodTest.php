@@ -238,4 +238,24 @@ final class DownloadUrlMethodTest extends TestCase
         self::assertSame(DownloadUrlMethod::ComposerDefaultDownload, $thirdMethod);
         self::assertNull($thirdMethod->possibleAssetNames($package, $targetPlatform));
     }
+
+    public function testFromComposerPackageWhenPackageKeyWasDefined(): void
+    {
+        self::fail('todo'); // @todo 436
+    }
+
+    public function testFromComposerPackageWhenPackageKeyWasNotDefined(): void
+    {
+        self::fail('todo'); // @todo 436
+    }
+
+    public function testFromDownloadedPackage(): void
+    {
+        self::fail('todo'); // @todo 436
+    }
+
+    public function testWriteToComposerPackageStoresDownloadUrlMethod(): void
+    {
+        self::fail('todo'); // @todo 436
+    }
 }

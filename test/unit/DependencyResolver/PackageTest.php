@@ -177,4 +177,19 @@ final class PackageTest extends TestCase
 
         self::assertSame(DownloadUrlMethod::ComposerDefaultDownload, $package->downloadUrlMethod());
     }
+
+    public function testFromComposerCompletePackageWithStringDownloadUrlMethod(): void
+    {
+        self::fail('todo'); // @todo 436
+    }
+
+    public function testFromComposerCompletePackageWithListDownloadUrlMethods(): void
+    {
+        self::fail('todo'); // @todo 436
+    }
+
+    public function testFromComposerCompletePackageWithOmittedDownloadUrlMethod(): void
+    {
+        self::fail('todo'); // @todo 436
+    }
 }
