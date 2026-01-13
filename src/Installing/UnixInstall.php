@@ -16,6 +16,7 @@ use Webmozart\Assert\Assert;
 
 use function array_unshift;
 use function file_exists;
+use function implode;
 use function is_writable;
 use function sprintf;
 
@@ -72,6 +73,8 @@ final class UnixInstall implements Install
             ));
             array_unshift($installCommand, Sudo::find());
         }
+
+        $io->write(sprintf('<info>Install command is: %s</info>', implode(' ', $installCommand)), verbosity: IOInterface::VERY_VERBOSE);
 
         $makeInstallOutput = Process::run(
             $installCommand,

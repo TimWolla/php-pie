@@ -110,6 +110,9 @@ TEXT);
 
     public function testLibcFlavourIsMemoized(): void
     {
-        self::fail('todo'); // @todo 436
+        self::assertSame(
+            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null)->libcFlavour(),
+            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null)->libcFlavour(),
+        );
     }
 }

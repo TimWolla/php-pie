@@ -13,6 +13,7 @@ use Php\Pie\Downloading\DownloadedPackage;
 use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\ExtensionName;
 use Php\Pie\ExtensionType;
+use Php\Pie\File\BinaryFile;
 use Php\Pie\Installing\Ini\PickBestSetupIniApproach;
 use Php\Pie\Installing\SetupIniFile;
 use Php\Pie\Installing\UnixInstall;
@@ -31,12 +32,18 @@ use function assert;
 use function file_exists;
 use function is_executable;
 use function is_writable;
+use function mkdir;
+use function rename;
+use function unlink;
+
+use const DIRECTORY_SEPARATOR;
 
 #[CoversClass(UnixInstall::class)]
 final class UnixInstallTest extends TestCase
 {
     private const COMPOSER_PACKAGE_EXTRA_KEY = 'download-url-method';
     private const TEST_EXTENSION_PATH        = __DIR__ . '/../../assets/pie_test_ext';
+    private const TEST_PREBUILT_PATH         = __DIR__ . '/../../assets/pre-packaged-binary-examples/install';
 
     /** @return array<string, array{0: non-empty-string}> */
     public static function phpPathProvider(): array
@@ -131,8 +138,88 @@ final class UnixInstallTest extends TestCase
         (new Process(['phpize', '--clean'], $downloadedPackage->extractedSourcePath))->mustRun();
     }
 
-    public function testUnixInstallCanInstallPrePackagedBinary(): void
+    #[DataProvider('phpPathProvider')]
+    public function testUnixInstallCanInstallPrePackagedBinary(string $phpConfig): void
     {
-        self::fail('todo'); // @todo 436
+        assert($phpConfig !== '');
+        if (Platform::isWindows()) {
+            self::markTestSkipped('Unix build test cannot be run on Windows');
+        }
+
+        $output         = new BufferIO();
+        $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromPhpConfigExecutable($phpConfig), null);
+        $extensionPath  = $targetPlatform->phpBinaryPath->extensionPath();
+
+        // First build it (otherwise the test assets would need to have a binary for every test platform...)
+        $composerPackage = $this->createMock(CompletePackageInterface::class);
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::ComposerDefaultDownload->value]);
+
+        $built = (new UnixBuild())->__invoke(
+            DownloadedPackage::fromPackageAndExtractedPath(
+                new Package(
+                    $composerPackage,
+                    ExtensionType::PhpModule,
+                    ExtensionName::normaliseFromString('pie_test_ext'),
+                    'pie_test_ext',
+                    '0.1.0',
+                    null,
+                ),
+                self::TEST_EXTENSION_PATH,
+            ),
+            $targetPlatform,
+            ['--enable-pie_test_ext'],
+            $output,
+            null,
+        );
+
+        /**
+         * Move the built .so into a new path; this simulates a pre-packaged binary, which would not have Makefile etc
+         * so this ensures we're not accidentally relying on any build mechanism (`make install` or otherwise)
+         */
+        mkdir(self::TEST_PREBUILT_PATH, 0777, true);
+        $prebuiltBinaryFilePath = self::TEST_PREBUILT_PATH . DIRECTORY_SEPARATOR . 'pie_test_ext.so';
+        rename($built->filePath, $prebuiltBinaryFilePath);
+
+        $prebuiltBinaryFile = BinaryFile::fromFileWithSha256Checksum($prebuiltBinaryFilePath);
+
+        $composerPackage = $this->createMock(CompletePackageInterface::class);
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::PrePackagedBinary->value]);
+
+        $installedSharedObject = (new UnixInstall(new SetupIniFile(new PickBestSetupIniApproach([]))))->__invoke(
+            DownloadedPackage::fromPackageAndExtractedPath(
+                new Package(
+                    $composerPackage,
+                    ExtensionType::PhpModule,
+                    ExtensionName::normaliseFromString('pie_test_ext'),
+                    'pie_test_ext',
+                    '0.1.0',
+                    null,
+                ),
+                self::TEST_PREBUILT_PATH,
+            ),
+            $targetPlatform,
+            $prebuiltBinaryFile,
+            $output,
+            true,
+        );
+        $outputString          = $output->getOutput();
+
+        self::assertStringContainsString('Install complete: ' . $extensionPath . '/pie_test_ext.so', $outputString);
+        self::assertStringContainsString('You must now add "extension=pie_test_ext" to your php.ini', $outputString);
+
+        self::assertSame($extensionPath . '/pie_test_ext.so', $installedSharedObject->filePath);
+        self::assertFileExists($installedSharedObject->filePath);
+
+        $rmCommand = ['rm', $installedSharedObject->filePath];
+        if (! is_writable($installedSharedObject->filePath)) {
+            array_unshift($rmCommand, 'sudo');
+        }
+
+        (new Process($rmCommand))->mustRun();
+        unlink($prebuiltBinaryFile->filePath);
     }
 }

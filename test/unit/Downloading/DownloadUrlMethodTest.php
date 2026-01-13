@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Php\PieUnitTest\Downloading;
 
+use Composer\Package\CompletePackage;
 use Composer\Package\CompletePackageInterface;
 use Php\Pie\DependencyResolver\Package;
+use Php\Pie\Downloading\DownloadedPackage;
 use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\ExtensionName;
 use Php\Pie\ExtensionType;
@@ -19,6 +21,7 @@ use Php\Pie\Platform\ThreadSafetyMode;
 use Php\Pie\Platform\WindowsCompiler;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use ValueError;
 
 use function array_key_first;
 
@@ -241,21 +244,36 @@ final class DownloadUrlMethodTest extends TestCase
 
     public function testFromComposerPackageWhenPackageKeyWasDefined(): void
     {
-        self::fail('todo'); // @todo 436
+        $composerPackage = new CompletePackage('foo/bar', '1.2.3.0', '1.2.3');
+        DownloadUrlMethod::PrePackagedBinary->writeToComposerPackage($composerPackage);
+        self::assertSame(DownloadUrlMethod::PrePackagedBinary, DownloadUrlMethod::fromComposerPackage($composerPackage));
     }
 
     public function testFromComposerPackageWhenPackageKeyWasNotDefined(): void
     {
-        self::fail('todo'); // @todo 436
+        $composerPackage = new CompletePackage('foo/bar', '1.2.3.0', '1.2.3');
+
+        $this->expectException(ValueError::class);
+        DownloadUrlMethod::fromComposerPackage($composerPackage);
     }
 
     public function testFromDownloadedPackage(): void
     {
-        self::fail('todo'); // @todo 436
-    }
+        $composerPackage = new CompletePackage('foo/bar', '1.2.3.0', '1.2.3');
+        DownloadUrlMethod::PrePackagedSourceDownload->writeToComposerPackage($composerPackage);
 
-    public function testWriteToComposerPackageStoresDownloadUrlMethod(): void
-    {
-        self::fail('todo'); // @todo 436
+        $downloaded = DownloadedPackage::fromPackageAndExtractedPath(
+            new Package(
+                $composerPackage,
+                ExtensionType::PhpModule,
+                ExtensionName::normaliseFromString('foo'),
+                'foo/bar',
+                '1.2.3',
+                null,
+            ),
+            '/path/to/extracted/source',
+        );
+
+        self::assertSame(DownloadUrlMethod::PrePackagedSourceDownload, DownloadUrlMethod::fromDownloadedPackage($downloaded));
     }
 }

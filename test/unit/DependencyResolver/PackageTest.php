@@ -180,16 +180,30 @@ final class PackageTest extends TestCase
 
     public function testFromComposerCompletePackageWithStringDownloadUrlMethod(): void
     {
-        self::fail('todo'); // @todo 436
+        $composerCompletePackage = new CompletePackage('vendor/foo', '1.2.3.0', '1.2.3');
+        $composerCompletePackage->setPhpExt(['download-url-method' => 'pre-packaged-binary']);
+
+        self::assertSame(
+            [DownloadUrlMethod::PrePackagedBinary],
+            Package::fromComposerCompletePackage($composerCompletePackage)->supportedDownloadUrlMethods(),
+        );
     }
 
     public function testFromComposerCompletePackageWithListDownloadUrlMethods(): void
     {
-        self::fail('todo'); // @todo 436
+        $composerCompletePackage = new CompletePackage('vendor/foo', '1.2.3.0', '1.2.3');
+        $composerCompletePackage->setPhpExt(['download-url-method' => ['pre-packaged-binary', 'composer-default']]);
+
+        self::assertSame(
+            [DownloadUrlMethod::PrePackagedBinary, DownloadUrlMethod::ComposerDefaultDownload],
+            Package::fromComposerCompletePackage($composerCompletePackage)->supportedDownloadUrlMethods(),
+        );
     }
 
     public function testFromComposerCompletePackageWithOmittedDownloadUrlMethod(): void
     {
-        self::fail('todo'); // @todo 436
+        self::assertNull(Package::fromComposerCompletePackage(
+            new CompletePackage('vendor/foo', '1.2.3.0', '1.2.3'),
+        )->supportedDownloadUrlMethods());
     }
 }

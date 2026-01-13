@@ -56,7 +56,7 @@ final class UnixBuild implements Build
         $expectedSoFile = $downloadedPackage->extractedSourcePath . '/' . $downloadedPackage->package->extensionName()->name() . '.so';
 
         if (! file_exists($expectedSoFile)) {
-            throw ExtensionBinaryNotFound::fromExpectedBinary($expectedSoFile);
+            throw ExtensionBinaryNotFound::fromPrePackagedBinary($expectedSoFile);
         }
 
         $io->write(sprintf(

@@ -28,6 +28,8 @@ final class UnixBuildTest extends TestCase
 {
     private const COMPOSER_PACKAGE_EXTRA_KEY = 'download-url-method';
     private const TEST_EXTENSION_PATH        = __DIR__ . '/../../assets/pie_test_ext';
+    private const TEST_PREBUILT_PATH_VALID   = __DIR__ . '/../../assets/pre-packaged-binary-examples/valid';
+    private const TEST_PREBUILT_PATH_INVALID = __DIR__ . '/../../assets/pre-packaged-binary-examples/invalid';
 
     public function testUnixSourceBuildCanBuildExtension(): void
     {
@@ -178,12 +180,73 @@ final class UnixBuildTest extends TestCase
 
     public function testUnixBinaryBuildThrowsErrorWhenBinaryFileNotFound(): void
     {
-        self::fail('todo'); // @todo 436
+        if (Platform::isWindows()) {
+            self::markTestSkipped('Unix build test cannot be run on Windows');
+        }
+
+        $output = new BufferIO();
+
+        $composerPackage = $this->createMock(CompletePackageInterface::class);
+        $composerPackage->method('getPrettyName')->willReturn('myvendor/pie_test_ext');
+        $composerPackage->method('getPrettyVersion')->willReturn('0.1.0');
+        $composerPackage->method('getType')->willReturn('php-ext');
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::PrePackagedBinary->value]);
+
+        $downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(
+            Package::fromComposerCompletePackage($composerPackage),
+            self::TEST_PREBUILT_PATH_INVALID,
+        );
+
+        $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null);
+        $unixBuilder    = new UnixBuild();
+
+        $this->expectException(ExtensionBinaryNotFound::class);
+        $this->expectExceptionMessage('Expected pre-packaged binary does not exist');
+        $unixBuilder->__invoke(
+            $downloadedPackage,
+            $targetPlatform,
+            ['--enable-pie_test_ext'],
+            $output,
+            null,
+        );
     }
 
     public function testUnixBinaryBuildReturnsBinaryFile(): void
     {
-        self::fail('todo'); // @todo 436
+        if (Platform::isWindows()) {
+            self::markTestSkipped('Unix build test cannot be run on Windows');
+        }
+
+        $output = new BufferIO();
+
+        $composerPackage = $this->createMock(CompletePackageInterface::class);
+        $composerPackage->method('getPrettyName')->willReturn('myvendor/pie_test_ext');
+        $composerPackage->method('getPrettyVersion')->willReturn('0.1.0');
+        $composerPackage->method('getType')->willReturn('php-ext');
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::PrePackagedBinary->value]);
+
+        $downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(
+            Package::fromComposerCompletePackage($composerPackage),
+            self::TEST_PREBUILT_PATH_VALID,
+        );
+
+        $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null);
+        $unixBuilder    = new UnixBuild();
+
+        $binaryFile = $unixBuilder->__invoke(
+            $downloadedPackage,
+            $targetPlatform,
+            ['--enable-pie_test_ext'],
+            $output,
+            null,
+        );
+
+        self::assertSame('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', $binaryFile->checksum);
+        self::assertStringEndsWith('pre-packaged-binary-examples/valid/pie_test_ext.so', $binaryFile->filePath);
     }
 
     public function testCleanupDoesNotCleanWhenConfigureIsMissing(): void

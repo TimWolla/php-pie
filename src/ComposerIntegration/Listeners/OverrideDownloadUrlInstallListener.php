@@ -17,7 +17,6 @@ use Php\Pie\DependencyResolver\Package;
 use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\Downloading\PackageReleaseAssets;
 use Psr\Container\ContainerInterface;
-use RuntimeException;
 use Throwable;
 
 use function array_walk;
@@ -76,9 +75,10 @@ class OverrideDownloadUrlInstallListener
                 $downloadUrlMethods = DownloadUrlMethod::possibleDownloadUrlMethodsForPackage($piePackage, $targetPlatform);
 
                 $selectedDownloadUrlMethod = null;
+                $downloadMethodFailures    = [];
 
                 foreach ($downloadUrlMethods as $downloadUrlMethod) {
-                    $this->io->write('Trying: ' . $downloadUrlMethod->value); // @todo 436 verbosity
+                    $this->io->write('Trying to download using: ' . $downloadUrlMethod->value, verbosity: IOInterface::VERY_VERBOSE);
 
                     // Exit early if we should just use Composer's normal download
                     if ($downloadUrlMethod === DownloadUrlMethod::ComposerDefaultDownload) {
@@ -89,12 +89,14 @@ class OverrideDownloadUrlInstallListener
                     try {
                         $possibleAssetNames = $downloadUrlMethod->possibleAssetNames($piePackage, $targetPlatform);
                     } catch (Throwable $t) {
-                        $this->io->write('Failed fetching asset names [' . $downloadUrlMethod->value . ']: ' . $t->getMessage()); // @todo 436 verbosity
+                        $downloadMethodFailures[$downloadUrlMethod->value] = $t->getMessage();
+                        $this->io->write('Failed fetching asset names [' . $downloadUrlMethod->value . ']: ' . $t->getMessage(), verbosity: IOInterface::VERBOSE);
                         continue;
                     }
 
                     if ($possibleAssetNames === null) {
-                        $this->io->write('Failed fetching asset names [' . $downloadUrlMethod->value . ']: No asset names'); // @todo 436 verbosity
+                        $downloadMethodFailures[$downloadUrlMethod->value] = 'No asset names';
+                        $this->io->write('Failed fetching asset names [' . $downloadUrlMethod->value . ']: No asset names', verbosity: IOInterface::VERBOSE);
                         continue;
                     }
 
@@ -110,7 +112,8 @@ class OverrideDownloadUrlInstallListener
                             $possibleAssetNames,
                         );
                     } catch (Throwable $t) {
-                        $this->io->write('Failed locating asset [' . $downloadUrlMethod->value . ']: ' . $t->getMessage()); // @todo 436 verbosity
+                        $downloadMethodFailures[$downloadUrlMethod->value] = $t->getMessage();
+                        $this->io->write('Failed locating asset [' . $downloadUrlMethod->value . ']: ' . $t->getMessage(), verbosity: IOInterface::VERBOSE);
                         continue;
                     }
 
@@ -126,11 +129,11 @@ class OverrideDownloadUrlInstallListener
                 }
 
                 if ($selectedDownloadUrlMethod === null) {
-                    throw new RuntimeException('No download method could be found for ' . $piePackage->name()); // @todo 436 improve message, will need to give more info!
+                    throw CouldNotDetermineDownloadUrlMethod::fromDownloadUrlMethods($piePackage, $downloadUrlMethods, $downloadMethodFailures);
                 }
 
                 $selectedDownloadUrlMethod->writeToComposerPackage($composerPackage);
-                $this->io->write('<info>FINALLY SETTLED on using download URL method: ' . $selectedDownloadUrlMethod->value . '</info>'); // @todo 436 verbosity
+                $this->io->write('<info>Selected download URL method: ' . $selectedDownloadUrlMethod->value . '</info>', verbosity: IOInterface::VERBOSE);
             },
         );
     }
