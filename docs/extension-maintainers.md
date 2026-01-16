@@ -252,7 +252,7 @@ string may be used.
      * `{Version}` the version of your extension, e.g. `1.20.1`
      * `{Arch}` the architecture of the binary, one of `x86`, `x86_64`, `arm64`
      * `{OS}` the operating system, one of `windows`, `darwin`, `linux`, `bsd`, `solaris`, `unknown`
-     * `{Libc}` the libc flavour, one of `glibc`, `musl`
+     * `{Libc}` the libc flavour, one of `glibc`, `musl`, `bsdlibc`
      * `{Debug}` the debug mode, one of `debug`, `nodebug` (or omitted)
      * `{TSMode}` the thread safety mode, one of `zts`, `nts` (or omitted)
      * `{Format}` the archive format, one of `zip`, `tgz`

@@ -15,10 +15,16 @@ enum LibcFlavour: string
 {
     case Gnu  = 'glibc';
     case Musl = 'musl';
+    case Bsd  = 'bsdlibc';
 
     public static function detect(): self
     {
         $executableFinder = new ExecutableFinder();
+
+        $otool = $executableFinder->find('otool');
+        if ($otool !== null) {
+            return self::Bsd;
+        }
 
         $lddPath = $executableFinder->find('ldd');
         $lsPath  = $executableFinder->find('ls');
