@@ -41,10 +41,10 @@ final class PrePackagedBinaryAssetNameTest extends TestCase
         $libc = $targetPlatform->libcFlavour();
         self::assertSame(
             [
-                'php_foobar-1.2.3_php8.2-x86_64-' . $libc->value . '.zip',
-                'php_foobar-1.2.3_php8.2-x86_64-' . $libc->value . '.tgz',
-                'php_foobar-1.2.3_php8.2-x86_64-' . $libc->value . '-nts.zip',
-                'php_foobar-1.2.3_php8.2-x86_64-' . $libc->value . '-nts.tgz',
+                'php_foobar-1.2.3_php8.2-x86_64-linux-' . $libc->value . '.zip',
+                'php_foobar-1.2.3_php8.2-x86_64-linux-' . $libc->value . '.tgz',
+                'php_foobar-1.2.3_php8.2-x86_64-linux-' . $libc->value . '-nts.zip',
+                'php_foobar-1.2.3_php8.2-x86_64-linux-' . $libc->value . '-nts.tgz',
             ],
             PrePackagedBinaryAssetName::packageNames(
                 $targetPlatform,
@@ -79,8 +79,8 @@ final class PrePackagedBinaryAssetNameTest extends TestCase
         $libc = $targetPlatform->libcFlavour();
         self::assertSame(
             [
-                'php_foobar-1.2.3_php8.3-x86_64-' . $libc->value . '-zts.zip',
-                'php_foobar-1.2.3_php8.3-x86_64-' . $libc->value . '-zts.tgz',
+                'php_foobar-1.2.3_php8.3-x86_64-linux-' . $libc->value . '-zts.zip',
+                'php_foobar-1.2.3_php8.3-x86_64-linux-' . $libc->value . '-zts.tgz',
             ],
             PrePackagedBinaryAssetName::packageNames(
                 $targetPlatform,
@@ -104,7 +104,7 @@ final class PrePackagedBinaryAssetNameTest extends TestCase
 
         $targetPlatform = new TargetPlatform(
             OperatingSystem::NonWindows,
-            OperatingSystemFamily::Linux,
+            OperatingSystemFamily::Darwin,
             $php,
             Architecture::arm64,
             ThreadSafetyMode::NonThreadSafe,
@@ -115,10 +115,10 @@ final class PrePackagedBinaryAssetNameTest extends TestCase
         $libc = $targetPlatform->libcFlavour();
         self::assertSame(
             [
-                'php_foobar-1.2.3_php8.4-arm64-' . $libc->value . '-debug.zip',
-                'php_foobar-1.2.3_php8.4-arm64-' . $libc->value . '-debug.tgz',
-                'php_foobar-1.2.3_php8.4-arm64-' . $libc->value . '-debug-nts.zip',
-                'php_foobar-1.2.3_php8.4-arm64-' . $libc->value . '-debug-nts.tgz',
+                'php_foobar-1.2.3_php8.4-arm64-darwin-' . $libc->value . '-debug.zip',
+                'php_foobar-1.2.3_php8.4-arm64-darwin-' . $libc->value . '-debug.tgz',
+                'php_foobar-1.2.3_php8.4-arm64-darwin-' . $libc->value . '-debug-nts.zip',
+                'php_foobar-1.2.3_php8.4-arm64-darwin-' . $libc->value . '-debug-nts.tgz',
             ],
             PrePackagedBinaryAssetName::packageNames(
                 $targetPlatform,

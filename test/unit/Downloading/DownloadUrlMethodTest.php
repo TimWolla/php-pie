@@ -144,8 +144,8 @@ final class DownloadUrlMethodTest extends TestCase
 
         self::assertSame(
             [
-                'php_bar-1.2.3_php8.3-x86_64-glibc-debug-zts.zip',
-                'php_bar-1.2.3_php8.3-x86_64-glibc-debug-zts.tgz',
+                'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug-zts.zip',
+                'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug-zts.tgz',
             ],
             $downloadUrlMethod->possibleAssetNames($package, $targetPlatform),
         );
@@ -218,10 +218,10 @@ final class DownloadUrlMethodTest extends TestCase
         self::assertSame(DownloadUrlMethod::PrePackagedBinary, $firstMethod);
         self::assertSame(
             [
-                'php_bar-1.2.3_php8.3-x86_64-glibc-debug.zip',
-                'php_bar-1.2.3_php8.3-x86_64-glibc-debug.tgz',
-                'php_bar-1.2.3_php8.3-x86_64-glibc-debug-nts.zip',
-                'php_bar-1.2.3_php8.3-x86_64-glibc-debug-nts.tgz',
+                'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug.zip',
+                'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug.tgz',
+                'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug-nts.zip',
+                'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug-nts.tgz',
             ],
             $firstMethod->possibleAssetNames($package, $targetPlatform),
         );

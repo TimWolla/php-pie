@@ -244,30 +244,31 @@ string may be used.
      compatibility with PECL packages)
  * Using `pre-packaged-binary` will locate a tgz or zip archive in the release
    assets list based on matching one of the following naming conventions:
-   * `php_{ExtensionName}-{Version}_php{PhpVersion}-{Arch}-{Libc}-{Debug}-{TSMode}.{Format}`
+   * `php_{ExtensionName}-{Version}_php{PhpVersion}-{Arch}-{OS}-{Libc}-{Debug}-{TSMode}.{Format}`
    * The replacements are:
      * `{ExtensionName}` the name of your extension, e.g. `xdebug` (hint: this
        is not your Composer package name!)
      * `{PhpVersion}` the major and minor version of PHP, e.g. `8.5`
      * `{Version}` the version of your extension, e.g. `1.20.1`
      * `{Arch}` the architecture of the binary, one of `x86`, `x86_64`, `arm64`
+     * `{OS}` the operating system, one of `windows`, `darwin`, `linux`, `bsd`, `solaris`, `unknown`
      * `{Libc}` the libc flavour, one of `glibc`, `musl`
      * `{Debug}` the debug mode, one of `debug`, `nodebug` (or omitted)
      * `{TSMode}` the thread safety mode, one of `zts`, `nts` (or omitted)
      * `{Format}` the archive format, one of `zip`, `tgz`
    * Some examples of valid asset names:
-     * `php_xdebug-4.1_php8.4-x86_64-glibc.tgz` (or `php_xdebug-4.1_php8.4-x86_64-glibc-nts.tgz`)
-     * `php_xdebug-4.1_php8.4-x86_64-musl.tgz` (or `php_xdebug-4.1_php8.4-x86_64-musl-nts.tgz`)
-     * `php_xdebug-4.1_php8.4-arm64-glibc.tgz` (or `php_xdebug-4.1_php8.4-arm64-glibc-nts.tgz`)
-     * `php_xdebug-4.1_php8.4-arm64-musl.tgz` (or `php_xdebug-4.1_php8.4-arm64-musl-nts.tgz`)
-     * `php_xdebug-4.1_php8.4-x86_64-glibc-zts.tgz`
-     * `php_xdebug-4.1_php8.4-x86_64-musl-zts.tgz`
-     * `php_xdebug-4.1_php8.4-arm64-glibc-zts.tgz`
-     * `php_xdebug-4.1_php8.4-arm64-musl-zts.tgz`
-     * `php_xdebug-4.1_php8.4-x86_64-glibc-debug.tgz`
-     * `php_xdebug-4.1_php8.4-x86_64-musl-debug.tgz`
-     * `php_xdebug-4.1_php8.4-arm64-glibc-debug.tgz`
-     * `php_xdebug-4.1_php8.4-arm64-musl-debug.tgz`
+     * `php_xdebug-4.1_php8.4-x86_64-linux-glibc.tgz` (or `php_xdebug-4.1_php8.4-x86_64-glibc-nts.tgz`)
+     * `php_xdebug-4.1_php8.4-x86_64-linux-musl.tgz` (or `php_xdebug-4.1_php8.4-x86_64-musl-nts.tgz`)
+     * `php_xdebug-4.1_php8.4-arm64-linux-glibc.tgz` (or `php_xdebug-4.1_php8.4-arm64-glibc-nts.tgz`)
+     * `php_xdebug-4.1_php8.4-arm64-linux-musl.tgz` (or `php_xdebug-4.1_php8.4-arm64-musl-nts.tgz`)
+     * `php_xdebug-4.1_php8.4-x86_64-linux-glibc-zts.tgz`
+     * `php_xdebug-4.1_php8.4-x86_64-linux-musl-zts.tgz`
+     * `php_xdebug-4.1_php8.4-arm64-linux-glibc-zts.tgz`
+     * `php_xdebug-4.1_php8.4-arm64-linux-musl-zts.tgz`
+     * `php_xdebug-4.1_php8.4-x86_64-linux-glibc-debug.tgz`
+     * `php_xdebug-4.1_php8.4-x86_64-linux-musl-debug.tgz`
+     * `php_xdebug-4.1_php8.4-arm64-linux-glibc-debug.tgz`
+     * `php_xdebug-4.1_php8.4-arm64-linux-musl-debug.tgz`
    * It is recommended that `pre-packaged-binary` is combined with `composer-default`
      as a fallback mechanism, if a particular combination is supported, but not
      pre-packaged on the release, e.g. `"download-url-method": ["pre-packaged-binary", "composer-default"]`.
