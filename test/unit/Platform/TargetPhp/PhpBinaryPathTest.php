@@ -86,6 +86,7 @@ final class PhpBinaryPathTest extends TestCase
         PhpBinaryPath::fromPhpBinaryPath(__FILE__);
     }
 
+    #[RequiresOperatingSystemFamily('Linux')]
     public function testInvalidPhpBinaryIsRejected(): void
     {
         $this->expectException(InvalidPhpBinaryPath::class);
@@ -93,6 +94,7 @@ final class PhpBinaryPathTest extends TestCase
         PhpBinaryPath::fromPhpBinaryPath(self::FAKE_PHP_EXECUTABLE);
     }
 
+    #[RequiresOperatingSystemFamily('Linux')]
     public function testInvalidVersion(): void
     {
         $phpBinary = PhpBinaryPath::fromPhpBinaryPath(self::PHP_INVALID_VERSION);
