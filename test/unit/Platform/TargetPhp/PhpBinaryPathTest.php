@@ -57,6 +57,7 @@ use const PHP_VERSION;
 final class PhpBinaryPathTest extends TestCase
 {
     private const FAKE_PHP_EXECUTABLE     = __DIR__ . '/../../../assets/fake-php.sh';
+    private const PHP_INVALID_VERSION     = __DIR__ . '/../../../assets/fake-php-invalid-version.sh';
     private const VALID_PHP_WITH_WARNINGS = __DIR__ . '/../../../assets/valid-php-with-warnings.sh';
 
     public function testNonExistentPhpBinaryIsRejected(): void
@@ -85,11 +86,20 @@ final class PhpBinaryPathTest extends TestCase
         PhpBinaryPath::fromPhpBinaryPath(__FILE__);
     }
 
+    #[RequiresOperatingSystemFamily('Linux')]
     public function testInvalidPhpBinaryIsRejected(): void
     {
         $this->expectException(InvalidPhpBinaryPath::class);
         $this->expectExceptionMessage('does not appear to be a PHP binary');
         PhpBinaryPath::fromPhpBinaryPath(self::FAKE_PHP_EXECUTABLE);
+    }
+
+    #[RequiresOperatingSystemFamily('Linux')]
+    public function testInvalidVersion(): void
+    {
+        $phpBinary = PhpBinaryPath::fromPhpBinaryPath(self::PHP_INVALID_VERSION);
+        self::assertSame('5.6.40', $phpBinary->version());
+        self::assertSame('5.6', $phpBinary->majorMinorVersion());
     }
 
     public function testWarningsAndDeprecationsAreFiltered(): void
@@ -129,11 +139,17 @@ final class PhpBinaryPathTest extends TestCase
 
         $possiblePhpConfigPaths = array_filter(
             [
+                ['/usr/bin/php-config8.5', '8.5'],
+                ['/usr/bin/php-config8.4', '8.4'],
                 ['/usr/bin/php-config8.3', '8.3'],
                 ['/usr/bin/php-config8.2', '8.2'],
                 ['/usr/bin/php-config8.1', '8.1'],
                 ['/usr/bin/php-config8.0', '8.0'],
                 ['/usr/bin/php-config7.4', '7.4'],
+                ['/usr/bin/php-config7.3', '7.3'],
+                ['/usr/bin/php-config7.2', '7.2'],
+                ['/usr/bin/php-config7.1', '7.1'],
+                ['/usr/bin/php-config5.6', '5.6'],
             ],
             static fn (array $phpConfigPath) => file_exists($phpConfigPath[0])
                 && is_executable($phpConfigPath[0]),
@@ -166,6 +182,11 @@ final class PhpBinaryPathTest extends TestCase
         self::assertSame(
             $expectedMajorMinor,
             $phpBinary->majorMinorVersion(),
+        );
+
+        self::assertStringStartsWith(
+            $expectedMajorMinor . '.',
+            $phpBinary->version(),
         );
 
         self::assertSame($phpConfigPath, $phpBinary->phpConfigPath());
