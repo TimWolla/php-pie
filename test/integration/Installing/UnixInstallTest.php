@@ -47,12 +47,15 @@ final class UnixInstallTest extends TestCase
         $possiblePhpConfigPaths = array_filter(
             [
                 '/usr/bin/php-config',
+                '/usr/bin/php-config8.5',
                 '/usr/bin/php-config8.4',
                 '/usr/bin/php-config8.3',
                 '/usr/bin/php-config8.2',
                 '/usr/bin/php-config8.1',
                 '/usr/bin/php-config8.0',
                 '/usr/bin/php-config7.4',
+                '/usr/bin/php-config7.3',
+                '/usr/bin/php-config7.2',
             ],
             static fn (string $phpConfigPath) => file_exists($phpConfigPath)
                 && is_executable($phpConfigPath),

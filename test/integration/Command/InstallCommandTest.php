@@ -50,6 +50,8 @@ class InstallCommandTest extends TestCase
         $possiblePhpConfigPaths = array_filter(
             [
                 '/usr/bin/php-config',
+                '/usr/bin/php-config8.5',
+                '/usr/bin/php-config8.4',
                 '/usr/bin/php-config8.3',
                 '/usr/bin/php-config8.2',
                 '/usr/bin/php-config8.1',
