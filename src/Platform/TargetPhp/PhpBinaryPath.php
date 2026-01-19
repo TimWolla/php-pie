@@ -254,11 +254,38 @@ PHP,
 
     public function operatingSystemFamily(): OperatingSystemFamily
     {
+        /** @link https://github.com/sebastianbergmann/environment/commit/eb6dd721cfaca04c27ac61c7201493a8f62f7f1d */
         $osFamily = OperatingSystemFamily::tryFrom(strtolower(trim(
             self::cleanWarningAndDeprecationsFromOutput(Process::run([
                 $this->phpBinaryPath,
                 '-r',
-                'echo PHP_OS_FAMILY;',
+                <<<'PHP'
+                if (defined('PHP_OS_FAMILY')) {
+                    echo PHP_OS_FAMILY;
+                } elseif ('\\' === DIRECTORY_SEPARATOR) {
+                    echo 'Windows';
+                } else {
+                    switch(PHP_OS) {
+                        case 'Darwin':
+                            echo 'Darwin';
+                            break;
+                        case 'DragonFly':
+                        case 'FreeBSD':
+                        case 'NetBSD':
+                        case 'OpenBSD':
+                            echo 'BSD';
+                            break;
+                        case 'Linux':
+                            echo 'Linux';
+                            break;
+                        case 'SunOS':
+                            echo 'Solaris';
+                            break;
+                        default:
+                            echo 'Unknown';
+                    }
+                }
+                PHP,
             ])),
         )));
         Assert::notNull($osFamily, 'Could not determine operating system family');
