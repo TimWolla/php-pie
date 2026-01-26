@@ -421,6 +421,18 @@ parameters:
 			path: test/unit/ComposerIntegration/VendorCleanupTest.php
 
 		-
+			message: '#^Parameter \#1 \$phpExt of method Composer\\Package\\Package\:\:setPhpExt\(\) expects array\{extension\-name\?\: string, priority\?\: int, support\-zts\?\: bool, support\-nts\?\: bool, build\-path\?\: string\|null, download\-url\-method\?\: string, os\-families\?\: non\-empty\-list\<non\-empty\-string\>, os\-families\-exclude\?\: non\-empty\-list\<non\-empty\-string\>, \.\.\.\}\|null, array\{download\-url\-method\: array\{''composer\-default''\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: test/unit/DependencyResolver/PackageTest.php
+
+		-
+			message: '#^Parameter \#1 \$phpExt of method Composer\\Package\\Package\:\:setPhpExt\(\) expects array\{extension\-name\?\: string, priority\?\: int, support\-zts\?\: bool, support\-nts\?\: bool, build\-path\?\: string\|null, download\-url\-method\?\: string, os\-families\?\: non\-empty\-list\<non\-empty\-string\>, os\-families\-exclude\?\: non\-empty\-list\<non\-empty\-string\>, \.\.\.\}\|null, array\{download\-url\-method\: array\{''pre\-packaged\-source'', ''composer\-default''\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: test/unit/DependencyResolver/PackageTest.php
+
+		-
 			message: '#^Parameter \#2 \$extractedSourcePath of static method Php\\Pie\\Downloading\\DownloadedPackage\:\:fromPackageAndExtractedPath\(\) expects string, string\|false given\.$#'
 			identifier: argument.type
 			count: 3
