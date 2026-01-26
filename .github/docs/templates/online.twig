@@ -65,7 +65,7 @@
 
         <ul class="nav nav-pills" id="docs-side-nav">
             {% for page in pages %}
-            {% if page.slug != 'pie-maintainers-handbook' %}
+            {% if page.slug != 'pie-maintainers-handbook' and page.slug[:3] != 'ja_' and page.slug[:3] != 'zh_' %}
             <li class="nav-item"><a href="#docs/{{ page.slug }}" class="nav-link fragmentRoute">{{ page.title }}</a></li>
             {% endif %}
             {% endfor %}

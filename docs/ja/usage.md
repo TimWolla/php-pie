@@ -1,7 +1,12 @@
 ---
 title: PIE の使用
 order: 2
+en-revision: b595732a62673b53c2509dfeab38a71ee16c88f4
 ---
+> [!WARNING]
+> This translation may not be based on the latest version, please ensure you
+> check the original English version for discrepancies.
+
 # PIE 使用ガイド
 
 ## PIE のインストール

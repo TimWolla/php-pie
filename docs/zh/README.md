@@ -1,3 +1,10 @@
+---
+en-revision: b595732a62673b53c2509dfeab38a71ee16c88f4
+---
+> [!WARNING]
+> This translation may not be based on the latest version, please ensure you
+> check the original English version for discrepancies.
+
 # 🥧 PIE (PHP 扩展安装器)
 
 ## 什么是 PIE？
