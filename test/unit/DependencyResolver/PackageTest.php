@@ -8,6 +8,7 @@ use Composer\Package\CompletePackage;
 use Composer\Package\CompletePackageInterface;
 use InvalidArgumentException;
 use Php\Pie\DependencyResolver\Package;
+use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\ExtensionName;
 use Php\Pie\ExtensionType;
 use Php\Pie\Platform\OperatingSystemFamily;
@@ -145,5 +146,35 @@ final class PackageTest extends TestCase
 
         self::assertSame('vendor/foo:1.2.3', $package->prettyNameAndVersion());
         self::assertSame('some/subdirectory/path/', $package->buildPath());
+    }
+
+    public function testDownloadUrlMethodWithStringHasValidDownloadUrlMethod(): void
+    {
+        $composerCompletePackage = new CompletePackage('vendor/foo', '1.2.3.0', '1.2.3');
+        $composerCompletePackage->setPhpExt(['download-url-method' => 'composer-default']);
+
+        $package = Package::fromComposerCompletePackage($composerCompletePackage);
+
+        self::assertSame(DownloadUrlMethod::ComposerDefaultDownload, $package->downloadUrlMethod());
+    }
+
+    public function testDownloadUrlMethodWithSingleItemListHasValidDownloadUrlMethod(): void
+    {
+        $composerCompletePackage = new CompletePackage('vendor/foo', '1.2.3.0', '1.2.3');
+        $composerCompletePackage->setPhpExt(['download-url-method' => ['composer-default']]);
+
+        $package = Package::fromComposerCompletePackage($composerCompletePackage);
+
+        self::assertSame(DownloadUrlMethod::ComposerDefaultDownload, $package->downloadUrlMethod());
+    }
+
+    public function testDownloadUrlMethodWithMultiItemListIsNotYetSupported(): void
+    {
+        $composerCompletePackage = new CompletePackage('vendor/foo', '1.2.3.0', '1.2.3');
+        $composerCompletePackage->setPhpExt(['download-url-method' => ['pre-packaged-source', 'composer-default']]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('This extension requires a newer version of PIE. Multiple download-url-methods are not supported until PIE 1.4.0.');
+        Package::fromComposerCompletePackage($composerCompletePackage);
     }
 }
