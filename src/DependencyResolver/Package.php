@@ -16,8 +16,10 @@ use Webmozart\Assert\Assert;
 use function array_key_exists;
 use function array_map;
 use function array_slice;
+use function count;
 use function explode;
 use function implode;
+use function is_array;
 use function parse_url;
 use function str_contains;
 use function str_starts_with;
@@ -89,7 +91,17 @@ final class Package
         $package->priority = $phpExtOptions['priority'] ?? 80;
 
         if ($phpExtOptions !== null && array_key_exists('download-url-method', $phpExtOptions)) {
-            $package->downloadUrlMethod = DownloadUrlMethod::tryFrom($phpExtOptions['download-url-method']);
+            /** @var string|list<string> $method */
+            $method = $phpExtOptions['download-url-method'];
+            if (is_array($method)) {
+                if (count($method) !== 1) {
+                    throw new InvalidArgumentException('This extension requires a newer version of PIE. Multiple download-url-methods are not supported until PIE 1.4.0.');
+                }
+
+                $method = $method[0];
+            }
+
+            $package->downloadUrlMethod = DownloadUrlMethod::tryFrom($method);
         }
 
         return $package;
