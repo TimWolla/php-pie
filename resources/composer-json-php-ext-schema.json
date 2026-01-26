@@ -59,6 +59,7 @@
                                 "enum": ["composer-default", "pre-packaged-source", "pre-packaged-binary"],
                                 "example": ["pre-packaged-binary", "composer-default"]
                             },
+                            "minItems": 1,
                             "default": ["composer-default"]
                         }
                     ]
