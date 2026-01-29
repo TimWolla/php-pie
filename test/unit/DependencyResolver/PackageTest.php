@@ -148,36 +148,6 @@ final class PackageTest extends TestCase
         self::assertSame('some/subdirectory/path/', $package->buildPath());
     }
 
-    public function testDownloadUrlMethodWithStringHasValidDownloadUrlMethod(): void
-    {
-        $composerCompletePackage = new CompletePackage('vendor/foo', '1.2.3.0', '1.2.3');
-        $composerCompletePackage->setPhpExt(['download-url-method' => 'composer-default']);
-
-        $package = Package::fromComposerCompletePackage($composerCompletePackage);
-
-        self::assertSame(DownloadUrlMethod::ComposerDefaultDownload, $package->downloadUrlMethod());
-    }
-
-    public function testDownloadUrlMethodWithSingleItemListHasValidDownloadUrlMethod(): void
-    {
-        $composerCompletePackage = new CompletePackage('vendor/foo', '1.2.3.0', '1.2.3');
-        $composerCompletePackage->setPhpExt(['download-url-method' => ['composer-default']]);
-
-        $package = Package::fromComposerCompletePackage($composerCompletePackage);
-
-        self::assertSame(DownloadUrlMethod::ComposerDefaultDownload, $package->downloadUrlMethod());
-    }
-
-    public function testDownloadUrlMethodWithMultiItemListIsNotYetSupported(): void
-    {
-        $composerCompletePackage = new CompletePackage('vendor/foo', '1.2.3.0', '1.2.3');
-        $composerCompletePackage->setPhpExt(['download-url-method' => ['pre-packaged-source', 'composer-default']]);
-
-        $package = Package::fromComposerCompletePackage($composerCompletePackage);
-
-        self::assertSame(DownloadUrlMethod::ComposerDefaultDownload, $package->downloadUrlMethod());
-    }
-
     public function testFromComposerCompletePackageWithStringDownloadUrlMethod(): void
     {
         $composerCompletePackage = new CompletePackage('vendor/foo', '1.2.3.0', '1.2.3');
