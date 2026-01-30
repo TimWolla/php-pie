@@ -142,6 +142,15 @@ final class ResolveDependencyWithComposer implements DependencyResolver
             ));
         }
 
+        if ($buildProvider === 'Homebrew') {
+            $identifiedBuildProvider = true;
+            $this->io->write(sprintf(
+                '<comment>%sThe bundled extension %s is likely already installed with Homebrew, and you should use that version.</comment>',
+                $note,
+                $piePackage->extensionName()->name(),
+            ));
+        }
+
         if ($identifiedBuildProvider && ! $forceInstallPackageVersion) {
             throw BundledPhpExtensionRefusal::forPackage($piePackage);
         }
