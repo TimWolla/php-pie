@@ -80,7 +80,7 @@ class CheckAllBuildTools
                 ],
             ),
             new BinaryBuildToolFinder(
-                'libtoolize',
+                ['libtoolize', 'glibtoolize'],
                 [
                     PackageManager::Apt->value => 'libtool',
                     PackageManager::Apk->value => 'libtool',
@@ -118,12 +118,12 @@ class CheckAllBuildTools
 
         foreach ($this->buildTools as $buildTool) {
             if ($buildTool->check() !== false) {
-                $io->write('Build tool ' . $buildTool->tool . ' is installed.', verbosity: IOInterface::VERY_VERBOSE);
+                $io->write('Build tool ' . $buildTool->toolNames() . ' is installed.', verbosity: IOInterface::VERY_VERBOSE);
                 continue;
             }
 
             $allFound       = false;
-            $missingTools[] = $buildTool->tool;
+            $missingTools[] = $buildTool->toolNames();
 
             if ($packageManager === null) {
                 continue;
@@ -132,7 +132,7 @@ class CheckAllBuildTools
             $packageName = $buildTool->packageNameFor($packageManager, $targetPlatform);
 
             if ($packageName === null) {
-                $io->writeError('<warning>Could not find package name for build tool ' . $buildTool->tool . '.</warning>', verbosity: IOInterface::VERBOSE);
+                $io->writeError('<warning>Could not find package name for build tool ' . $buildTool->toolNames() . '.</warning>', verbosity: IOInterface::VERBOSE);
                 continue;
             }
 

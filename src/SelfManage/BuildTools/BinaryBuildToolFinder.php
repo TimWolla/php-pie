@@ -8,21 +8,39 @@ use Php\Pie\Platform\TargetPlatform;
 use Symfony\Component\Process\ExecutableFinder;
 
 use function array_key_exists;
+use function implode;
+use function is_array;
 use function str_replace;
 
 /** @internal This is not public API for PIE, so should not be depended upon unless you accept the risk of BC breaks */
 class BinaryBuildToolFinder
 {
-    /** @param array<PackageManager::*, non-empty-string|null> $packageManagerPackages */
+    /**
+     * @param non-empty-string|array<non-empty-string>        $tool
+     * @param array<PackageManager::*, non-empty-string|null> $packageManagerPackages
+     */
     public function __construct(
-        public readonly string $tool,
+        protected readonly string|array $tool,
         private readonly array $packageManagerPackages,
     ) {
     }
 
+    public function toolNames(): string
+    {
+        return is_array($this->tool) ? implode('/', $this->tool) : $this->tool;
+    }
+
     public function check(): bool
     {
-        return (new ExecutableFinder())->find($this->tool) !== null;
+        $tools = is_array($this->tool) ? $this->tool : [$this->tool];
+
+        foreach ($tools as $tool) {
+            if ((new ExecutableFinder())->find($tool) !== null) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** @return non-empty-string|null */
