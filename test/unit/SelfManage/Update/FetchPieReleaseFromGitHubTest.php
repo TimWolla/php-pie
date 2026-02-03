@@ -207,4 +207,60 @@ final class FetchPieReleaseFromGitHubTest extends TestCase
         self::assertSame($pharContent, file_get_contents($file->filePath));
         self::assertSame($expectedDigest, $file->checksum);
     }
+
+    public function testDraftReleasesAreNotReturnedForStableChannel(): void
+    {
+        $httpDownloader = $this->createMock(HttpDownloader::class);
+
+        $url = self::TEST_GITHUB_URL . '/repos/php/pie/releases';
+        $httpDownloader->expects(self::once())
+            ->method('get')
+            ->with(
+                $url,
+                [
+                    'retry-auth-failure' => true,
+                    'http' => [
+                        'method' => 'GET',
+                        'header' => [],
+                    ],
+                ],
+            )
+            ->willReturn(
+                new Response(
+                    ['url' => $url],
+                    200,
+                    [],
+                    (string) json_encode([
+
+                        [
+                            'draft' => true,
+                            'tag_name' => '1.2.4',
+                            'assets' => [
+                                [
+                                    'name' => 'pie.phar',
+                                    'browser_download_url' => self::TEST_GITHUB_URL . '/path/to/pie.phar',
+                                ],
+                            ],
+                        ],
+                        [
+                            'draft' => false,
+                            'tag_name' => '1.2.3',
+                            'assets' => [
+                                [
+                                    'name' => 'pie.phar',
+                                    'browser_download_url' => self::TEST_GITHUB_URL . '/path/to/pie.phar',
+                                ],
+                            ],
+                        ],
+                    ]),
+                ),
+            );
+
+        $fetch = new FetchPieReleaseFromGitHub(self::TEST_GITHUB_URL, $httpDownloader);
+
+        $latestRelease = $fetch->latestReleaseMetadata(Channel::Stable);
+
+        self::assertSame('1.2.3', $latestRelease->tag);
+        self::assertSame(self::TEST_GITHUB_URL . '/path/to/pie.phar', $latestRelease->downloadUrl);
+    }
 }

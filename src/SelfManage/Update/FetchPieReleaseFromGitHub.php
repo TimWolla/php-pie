@@ -11,6 +11,7 @@ use RuntimeException;
 use Webmozart\Assert\Assert;
 
 use function array_filter;
+use function array_key_exists;
 use function array_map;
 use function count;
 use function file_put_contents;
@@ -85,7 +86,10 @@ final class FetchPieReleaseFromGitHub implements FetchPieRelease
                         $firstAssetNamedPiePhar['browser_download_url'],
                     );
                 },
-                $decodedResponse,
+                array_filter(
+                    $decodedResponse,
+                    static fn (array $releaseResponse): bool => (! array_key_exists('draft', $releaseResponse) || ! $releaseResponse['draft']),
+                ),
             ),
             static function (ReleaseMetadata|null $releaseMetadata) use ($updateChannel): bool {
                 if ($releaseMetadata === null) {
