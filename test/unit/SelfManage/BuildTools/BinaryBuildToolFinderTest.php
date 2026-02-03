@@ -19,9 +19,19 @@ final class BinaryBuildToolFinderTest extends TestCase
         self::assertFalse((new BinaryBuildToolFinder('this-should-not-be-anything-in-path', []))->check());
     }
 
+    public function testCheckFailsToFindToolInList(): void
+    {
+        self::assertFalse((new BinaryBuildToolFinder(['this-should-not-be-anything-in-path-1', 'this-should-not-be-anything-in-path-2'], []))->check());
+    }
+
     public function testCheckFindsTool(): void
     {
         self::assertTrue((new BinaryBuildToolFinder('echo', []))->check());
+    }
+
+    public function testCheckFindsToolFromList(): void
+    {
+        self::assertTrue((new BinaryBuildToolFinder(['this-should-not-be-anything-in-path', 'echo'], []))->check());
     }
 
     public function testPackageNameIsNullWhenNoPackageConfiguredForPackageManager(): void
