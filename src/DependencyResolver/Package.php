@@ -94,11 +94,11 @@ final class Package
             /** @var string|list<string> $method */
             $method = $phpExtOptions['download-url-method'];
             if (is_array($method)) {
-                if (count($method) !== 1) {
-                    throw new InvalidArgumentException('This extension requires a newer version of PIE. Multiple download-url-methods are not supported until PIE 1.4.0.');
+                if (count($method) === 1) {
+                    $method = $method[0];
+                } else {
+                    $method = DownloadUrlMethod::ComposerDefaultDownload->value;
                 }
-
-                $method = $method[0];
             }
 
             $package->downloadUrlMethod = DownloadUrlMethod::tryFrom($method);

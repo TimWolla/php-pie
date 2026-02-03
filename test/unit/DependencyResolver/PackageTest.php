@@ -173,8 +173,8 @@ final class PackageTest extends TestCase
         $composerCompletePackage = new CompletePackage('vendor/foo', '1.2.3.0', '1.2.3');
         $composerCompletePackage->setPhpExt(['download-url-method' => ['pre-packaged-source', 'composer-default']]);
 
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('This extension requires a newer version of PIE. Multiple download-url-methods are not supported until PIE 1.4.0.');
-        Package::fromComposerCompletePackage($composerCompletePackage);
+        $package = Package::fromComposerCompletePackage($composerCompletePackage);
+
+        self::assertSame(DownloadUrlMethod::ComposerDefaultDownload, $package->downloadUrlMethod());
     }
 }
