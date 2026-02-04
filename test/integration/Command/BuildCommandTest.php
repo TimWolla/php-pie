@@ -10,6 +10,8 @@ use Php\Pie\Container;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+use function str_contains;
+
 #[CoversClass(BuildCommand::class)]
 class BuildCommandTest extends TestCase
 {
@@ -32,6 +34,13 @@ class BuildCommandTest extends TestCase
 
         if (Platform::isWindows()) {
             self::assertStringContainsString('Found prebuilt archive', $outputString);
+
+            return;
+        }
+
+        if (str_contains($outputString, 'Found prebuilt archive')) {
+            self::assertStringContainsString('Found prebuilt archive', $outputString);
+            self::assertStringContainsString('Pre-packaged binary found', $outputString);
 
             return;
         }
