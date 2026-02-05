@@ -17,6 +17,7 @@ use function assert;
 use function copy;
 use function realpath;
 use function sprintf;
+use function str_contains;
 
 class CliContext implements Context
 {
@@ -119,6 +120,13 @@ class CliContext implements Context
             return;
         }
 
+        if (str_contains($this->output, 'Found prebuilt archive')) {
+            Assert::contains($this->output, 'Found prebuilt archive');
+            Assert::contains($this->output, 'Pre-packaged binary found');
+
+            return;
+        }
+
         Assert::contains($this->output, 'phpize complete.');
         Assert::contains($this->output, 'Configure complete');
         Assert::contains($this->output, 'Build complete:');
@@ -137,6 +145,13 @@ class CliContext implements Context
 
         if (Platform::isWindows()) {
             Assert::contains($this->output, 'Nothing to do on Windows');
+
+            return;
+        }
+
+        if (str_contains($this->output, 'Found prebuilt archive')) {
+            Assert::contains($this->output, 'Found prebuilt archive');
+            Assert::contains($this->output, 'Pre-packaged binary found');
 
             return;
         }
