@@ -48,10 +48,10 @@ $ pie install asgrim/example-pie-extension
 This command may need elevated privileges, and may prompt you for your password.
 You are running PHP 8.3.10
 Target PHP installation: 8.3.10 nts, on Linux/OSX/etc x86_64 (from /usr/bin/php8.3)
-Found package: example/example-pie-extension:1.0.1 which provides ext-example_pie_extension
+Found package: asgrim/example-pie-extension:1.0.1 which provides ext-example_pie_extension
 phpize complete.
 Configure complete.
-Build complete: /tmp/pie_downloader_66e0b1de73cdb6.04069773/example-example-pie-extension-769f906/modules/example_pie_extension.so
+Build complete: /tmp/pie_downloader_66e0b1de73cdb6.04069773/asgrim-example-pie-extension-769f906/modules/example_pie_extension.so
 Install complete: /usr/lib/php/20230831/example_pie_extension.so
 You must now add "extension=example_pie_extension" to your php.ini
 $
