@@ -36,7 +36,7 @@ DLL.
 
 Further installation details can be found in the [usage](./docs/usage.md) docs.
 This documentation assumes you have moved `pie.phar` into your `$PATH`, e.g.
-`/usr/local/bin/pie` on non-Windows systems.
+`/usr/local/bin/pie` on non-Windows systems or created an alias in your shell RC file.
 
 ## Installing a single extension using PIE
 
@@ -44,7 +44,7 @@ You can install an extension using the `install` command. For example, to
 install the `example_pie_extension` extension, you would run:
 
 ```shell
-$ pie install example/example-pie-extension
+$ pie install asgrim/example-pie-extension
 This command may need elevated privileges, and may prompt you for your password.
 You are running PHP 8.3.10
 Target PHP installation: 8.3.10 nts, on Linux/OSX/etc x86_64 (from /usr/bin/php8.3)
