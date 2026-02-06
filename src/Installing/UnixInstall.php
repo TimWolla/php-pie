@@ -14,7 +14,8 @@ use Php\Pie\Util\Process;
 use RuntimeException;
 use Webmozart\Assert\Assert;
 
-use function array_unshift;
+use function array_map;
+use function array_merge;
 use function file_exists;
 use function implode;
 use function is_writable;
@@ -45,18 +46,29 @@ final class UnixInstall implements Install
             $sharedObjectName,
         );
 
+        $installCommands = [];
         switch (DownloadUrlMethod::fromDownloadedPackage($downloadedPackage)) {
             case DownloadUrlMethod::PrePackagedBinary:
                 Assert::notNull($builtBinaryFile);
-                $installCommand = [
+
+                if (file_exists($expectedSharedObjectLocation)) {
+                    $installCommands[] = [
+                        'rm',
+                        '-v',
+                        $expectedSharedObjectLocation,
+                    ];
+                }
+
+                $installCommands[] = [
                     'cp',
+                    '-v',
                     $builtBinaryFile->filePath,
                     $targetExtensionPath,
                 ];
                 break;
 
             default:
-                $installCommand = ['make', 'install'];
+                $installCommands[] = ['make', 'install'];
         }
 
         // If the target directory isn't writable, or a .so file already exists and isn't writable, try to use sudo
@@ -71,18 +83,20 @@ final class UnixInstall implements Install
                 '<comment>Cannot write to %s, so using sudo to elevate privileges.</comment>',
                 $targetExtensionPath,
             ));
-            array_unshift($installCommand, Sudo::find());
+            $installCommands = array_map(static fn (array $command) => array_merge(['sudo'], $command), $installCommands);
         }
 
-        $io->write(sprintf('<info>Install command is: %s</info>', implode(' ', $installCommand)), verbosity: IOInterface::VERY_VERBOSE);
+        $io->write(sprintf('<info>Install commands are: %s</info>', implode(', ', array_map(static fn (array $command) => implode(' ', $command), $installCommands))), verbosity: IOInterface::VERY_VERBOSE);
 
-        $makeInstallOutput = Process::run(
-            $installCommand,
-            $downloadedPackage->extractedSourcePath,
-            self::MAKE_INSTALL_TIMEOUT_SECS,
-        );
+        foreach ($installCommands as $installCommand) {
+            $makeInstallOutput = Process::run(
+                $installCommand,
+                $downloadedPackage->extractedSourcePath,
+                self::MAKE_INSTALL_TIMEOUT_SECS,
+            );
 
-        $io->write($makeInstallOutput, verbosity: IOInterface::VERY_VERBOSE);
+            $io->write($makeInstallOutput, verbosity: IOInterface::VERY_VERBOSE);
+        }
 
         if (! file_exists($expectedSharedObjectLocation)) {
             throw new RuntimeException('Install failed, ' . $expectedSharedObjectLocation . ' was not installed.');
