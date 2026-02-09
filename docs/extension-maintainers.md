@@ -232,51 +232,90 @@ change the behaviour of downloading the source package. This should be defined
 as a list of supported methods, but for backwards compatibility a single
 string may be used.
 
- * Setting this to `composer-default`, which is the default value if nothing is
-   specified, will use the default behaviour implemented by Composer, which is
-   to use the standard ZIP archive from the GitHub API (or other source control
-   system).
- * Using `pre-packaged-source` will locate a source code package in the release
-   assets list based matching one of the following naming conventions:
-   * `php_{ExtensionName}-{Version}-src.tgz` (e.g. `php_myext-1.20.1-src.tgz`)
-   * `php_{ExtensionName}-{Version}-src.zip` (e.g. `php_myext-1.20.1-src.zip`)
-   * `{ExtensionName}-{Version}.tgz` (this is intended for backwards
-     compatibility with PECL packages)
- * Using `pre-packaged-binary` will locate a tgz or zip archive in the release
-   assets list based on matching one of the following naming conventions:
-   * `php_{ExtensionName}-{Version}_php{PhpVersion}-{Arch}-{OS}-{Libc}-{Debug}-{TSMode}.{Format}`
-   * The replacements are:
-     * `{ExtensionName}` the name of your extension, e.g. `xdebug` (hint: this
-       is not your Composer package name!)
-     * `{PhpVersion}` the major and minor version of PHP, e.g. `8.5`
-     * `{Version}` the version of your extension, e.g. `1.20.1`
-     * `{Arch}` the architecture of the binary, one of `x86`, `x86_64`, `arm64`
-     * `{OS}` the operating system, one of `windows`, `darwin`, `linux`, `bsd`, `solaris`, `unknown`
-     * `{Libc}` the libc flavour, one of `glibc`, `musl`, `bsdlibc`
-     * `{Debug}` the debug mode, one of `debug`, `nodebug` (or omitted)
-     * `{TSMode}` the thread safety mode, one of `zts`, `nts` (or omitted)
-     * `{Format}` the archive format, one of `zip`, `tgz`
-   * Some examples of valid asset names:
-     * `php_xdebug-4.1_php8.4-x86_64-linux-glibc.tgz` (or `php_xdebug-4.1_php8.4-x86_64-glibc-nts.tgz`)
-     * `php_xdebug-4.1_php8.4-x86_64-linux-musl.tgz` (or `php_xdebug-4.1_php8.4-x86_64-musl-nts.tgz`)
-     * `php_xdebug-4.1_php8.4-arm64-linux-glibc.tgz` (or `php_xdebug-4.1_php8.4-arm64-glibc-nts.tgz`)
-     * `php_xdebug-4.1_php8.4-arm64-linux-musl.tgz` (or `php_xdebug-4.1_php8.4-arm64-musl-nts.tgz`)
-     * `php_xdebug-4.1_php8.4-x86_64-linux-glibc-zts.tgz`
-     * `php_xdebug-4.1_php8.4-x86_64-linux-musl-zts.tgz`
-     * `php_xdebug-4.1_php8.4-arm64-linux-glibc-zts.tgz`
-     * `php_xdebug-4.1_php8.4-arm64-linux-musl-zts.tgz`
-     * `php_xdebug-4.1_php8.4-x86_64-linux-glibc-debug.tgz`
-     * `php_xdebug-4.1_php8.4-x86_64-linux-musl-debug.tgz`
-     * `php_xdebug-4.1_php8.4-arm64-linux-glibc-debug.tgz`
-     * `php_xdebug-4.1_php8.4-arm64-linux-musl-debug.tgz`
-   * It is recommended that `pre-packaged-binary` is combined with `composer-default`
-     as a fallback mechanism, if a particular combination is supported, but not
-     pre-packaged on the release, e.g. `"download-url-method": ["pre-packaged-binary", "composer-default"]`.
-     PIE will try to find a pre-packaged binary asset first, but if it cannot
-     find an appropriate binary, it will download the source code and build it
-     in the traditional manner.
+The possible values are:
 
-###### Example of using `pre-packaged-binary` with `composer-default` fallback
+ - `composer-default`
+ - `pre-packaged-source`
+ - `pre-packaged-binary`
+
+The default value, if nothing is specified is `["composer-default"]`.
+
+###### composer-default
+
+Setting this to `composer-default`, which is the default value if nothing is
+specified, will use the default behaviour implemented by Composer, which is
+to use the standard ZIP archive from the GitHub API (or other source control
+system). PIE will then build and install the extension from source.
+
+###### pre-packaged-source
+
+Using `pre-packaged-source` will locate a source code package in the release
+assets list based matching one of the following naming conventions:
+
+* `php_{ExtensionName}-{Version}-src.tgz` (e.g. `php_myext-1.20.1-src.tgz`)
+* `php_{ExtensionName}-{Version}-src.zip` (e.g. `php_myext-1.20.1-src.zip`)
+* `{ExtensionName}-{Version}.tgz` (this is intended for backwards
+  compatibility with PECL packages)
+
+This is useful for scenarios where you might need additional dependencies
+pulled into the source build, which would not be available if you downloaded
+the ZIP archive from your repository. For example, if your extension uses Git
+Submodules to include third party libraries statically in the build.
+
+###### pre-packaged-binary
+
+> [!CAUTION]
+> If your extension depends on dynamically linked libraries, it is **not
+> recommended** to use `pre-packaged-binary` option, as the correct version,
+> or at least compatible linked libraries may not be available on the end
+> user's system. Use with caution!
+
+Using `pre-packaged-binary` will attempt to locate a Zip (or TGZ) archive in
+the release assets list based on matching one of the following naming
+conventions:
+
+  * `php_{ExtensionName}-{Version}_php{PhpVersion}-{Arch}-{OS}-{Libc}-{Debug}-{TSMode}.{Format}`
+
+The replacements are:
+
+  * `{ExtensionName}` the name of your extension, e.g. `xdebug` (hint: this
+    is not your Composer package name!)
+  * `{PhpVersion}` the major and minor version of PHP, e.g. `8.5`
+  * `{Version}` the version of your extension, e.g. `1.20.1`
+  * `{Arch}` the architecture of the binary, one of `x86`, `x86_64`, `arm64`
+  * `{OS}` the operating system, one of `windows`, `darwin`, `linux`, `bsd`, `solaris`, `unknown`
+  * `{Libc}` the libc flavour, one of `glibc`, `musl`, `bsdlibc`
+  * `{Debug}` the debug mode, one of `debug`, `nodebug` (or omitted)
+  * `{TSMode}` the thread safety mode, one of `zts`, `nts` (or omitted)
+  * `{Format}` the archive format, one of `zip`, `tgz` - note that ZIP is
+    preferred as it means there are fewer dependencies for the end user
+
+> [!TIP]
+> In order to generate pre-built binaries for PIE, you could use the
+> [php/pie-ext-binary-builder](https://github.com/php/pie-ext-binary-builder)
+> GitHub Action. This will build and name the assets correctly for you.
+
+Some examples of valid asset names:
+
+ * `php_xdebug-4.1_php8.4-x86_64-linux-glibc.zip` (or `php_xdebug-4.1_php8.4-x86_64-glibc-nts.zip`)
+ * `php_xdebug-4.1_php8.4-x86_64-linux-musl.zip` (or `php_xdebug-4.1_php8.4-x86_64-musl-nts.zip`)
+ * `php_xdebug-4.1_php8.4-arm64-linux-glibc.zip` (or `php_xdebug-4.1_php8.4-arm64-glibc-nts.zip`)
+ * `php_xdebug-4.1_php8.4-arm64-linux-musl.zip` (or `php_xdebug-4.1_php8.4-arm64-musl-nts.zip`)
+ * `php_xdebug-4.1_php8.4-x86_64-linux-glibc-zts.zip`
+ * `php_xdebug-4.1_php8.4-x86_64-linux-musl-zts.zip`
+ * `php_xdebug-4.1_php8.4-arm64-linux-glibc-zts.zip`
+ * `php_xdebug-4.1_php8.4-arm64-linux-musl-zts.zip`
+ * `php_xdebug-4.1_php8.4-x86_64-linux-glibc-debug.zip`
+ * `php_xdebug-4.1_php8.4-x86_64-linux-musl-debug.zip`
+ * `php_xdebug-4.1_php8.4-arm64-linux-glibc-debug.zip`
+ * `php_xdebug-4.1_php8.4-arm64-linux-musl-debug.zip`
+
+It is recommended that `pre-packaged-binary` is combined with `composer-default`
+as a fallback mechanism, if a particular combination is supported, but not
+pre-packaged on the release, e.g. `"download-url-method": ["pre-packaged-binary", "composer-default"]`.
+PIE will try to find a pre-packaged binary asset first, but if it cannot
+find an appropriate binary, it will download the source code and build it
+in the traditional manner.
 
 ```json
 {
