@@ -17,10 +17,8 @@ use const PHP_EOL;
 class CouldNotFindReleaseAsset extends RuntimeException
 {
     /** @param non-empty-list<non-empty-string> $expectedAssetNames */
-    public static function forPackage(TargetPlatform $targetPlatform, Package $package, array $expectedAssetNames): self
+    public static function forPackage(TargetPlatform $targetPlatform, Package $package, DownloadUrlMethod $downloadUrlMethod, array $expectedAssetNames): self
     {
-        $downloadUrlMethod = DownloadUrlMethod::fromPackage($package, $targetPlatform);
-
         if ($downloadUrlMethod === DownloadUrlMethod::WindowsBinaryDownload) {
             return new self(sprintf(
                 'Windows archive with prebuilt extension for %s was not attached on release %s - looked for one of "%s"',
@@ -37,10 +35,10 @@ class CouldNotFindReleaseAsset extends RuntimeException
         ));
     }
 
-    public static function forPackageWithMissingTag(Package $package): self
+    public static function forPackageWithMissingTag(Package $package, DownloadUrlMethod $downloadUrlMethod): self
     {
         if (
-            $package->downloadUrlMethod() === DownloadUrlMethod::PrePackagedSourceDownload
+            $downloadUrlMethod === DownloadUrlMethod::PrePackagedSourceDownload
             && $package->composerPackage()->isDev()
         ) {
             return new self(sprintf(

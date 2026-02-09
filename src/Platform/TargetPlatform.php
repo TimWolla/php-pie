@@ -21,6 +21,8 @@ use function trim;
  */
 class TargetPlatform
 {
+    private static LibcFlavour $libcFlavour;
+
     public function __construct(
         public readonly OperatingSystem $operatingSystem,
         public readonly OperatingSystemFamily $operatingSystemFamily,
@@ -30,6 +32,15 @@ class TargetPlatform
         public readonly int $makeParallelJobs,
         public readonly WindowsCompiler|null $windowsCompiler,
     ) {
+    }
+
+    public function libcFlavour(): LibcFlavour
+    {
+        if (! isset(self::$libcFlavour)) {
+            self::$libcFlavour = LibcFlavour::detect();
+        }
+
+        return self::$libcFlavour;
     }
 
     public static function isRunningAsRoot(): bool

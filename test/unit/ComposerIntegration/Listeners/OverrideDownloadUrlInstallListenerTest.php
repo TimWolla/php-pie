@@ -12,10 +12,13 @@ use Composer\Installer\InstallerEvents;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackage;
 use Composer\Package\Package;
+use Php\Pie\ComposerIntegration\Listeners\CouldNotDetermineDownloadUrlMethod;
 use Php\Pie\ComposerIntegration\Listeners\OverrideDownloadUrlInstallListener;
 use Php\Pie\ComposerIntegration\PieComposerRequest;
 use Php\Pie\ComposerIntegration\PieOperation;
 use Php\Pie\DependencyResolver\RequestedPackageAndVersion;
+use Php\Pie\Downloading\DownloadUrlMethod;
+use Php\Pie\Downloading\Exception\CouldNotFindReleaseAsset;
 use Php\Pie\Downloading\PackageReleaseAssets;
 use Php\Pie\Platform\Architecture;
 use Php\Pie\Platform\OperatingSystem;
@@ -256,6 +259,7 @@ final class OverrideDownloadUrlInstallListenerTest extends TestCase
             'https://example.com/git-archive-zip-url',
             $composerPackage->getDistUrl(),
         );
+        self::assertSame(DownloadUrlMethod::ComposerDefaultDownload, DownloadUrlMethod::fromComposerPackage($composerPackage));
     }
 
     public function testDistUrlIsUpdatedForWindowsInstallers(): void
@@ -310,6 +314,7 @@ final class OverrideDownloadUrlInstallListenerTest extends TestCase
             'https://example.com/windows-download-url',
             $composerPackage->getDistUrl(),
         );
+        self::assertSame(DownloadUrlMethod::WindowsBinaryDownload, DownloadUrlMethod::fromComposerPackage($composerPackage));
     }
 
     public function testDistUrlIsUpdatedForPrePackagedTgzSource(): void
@@ -369,6 +374,187 @@ final class OverrideDownloadUrlInstallListenerTest extends TestCase
             'https://example.com/pre-packaged-source-download-url.tgz',
             $composerPackage->getDistUrl(),
         );
+        self::assertSame(DownloadUrlMethod::PrePackagedSourceDownload, DownloadUrlMethod::fromComposerPackage($composerPackage));
         self::assertSame('tar', $composerPackage->getDistType());
+    }
+
+    public function testDistUrlIsUpdatedForPrePackagedTgzBinaryWhenBinaryIsFound(): void
+    {
+        $composerPackage = new CompletePackage('foo/bar', '1.2.3.0', '1.2.3');
+        $composerPackage->setDistType('zip');
+        $composerPackage->setDistUrl('https://example.com/git-archive-zip-url');
+        $composerPackage->setPhpExt([
+            'extension-name' => 'foobar',
+            'download-url-method' => ['pre-packaged-binary', 'composer-default'],
+        ]);
+
+        $installerEvent = new InstallerEvent(
+            InstallerEvents::PRE_OPERATIONS_EXEC,
+            $this->composer,
+            $this->io,
+            false,
+            true,
+            new Transaction([], [$composerPackage]),
+        );
+
+        $packageReleaseAssets = $this->createMock(PackageReleaseAssets::class);
+        $packageReleaseAssets
+            ->expects(self::once())
+            ->method('findMatchingReleaseAssetUrl')
+            ->willReturn('https://example.com/pre-packaged-binary-download-url.tgz');
+
+        $this->container
+            ->method('get')
+            ->with(PackageReleaseAssets::class)
+            ->willReturn($packageReleaseAssets);
+
+        (new OverrideDownloadUrlInstallListener(
+            $this->composer,
+            $this->io,
+            $this->container,
+            new PieComposerRequest(
+                $this->createMock(IOInterface::class),
+                new TargetPlatform(
+                    OperatingSystem::NonWindows,
+                    OperatingSystemFamily::Linux,
+                    PhpBinaryPath::fromCurrentProcess(),
+                    Architecture::x86_64,
+                    ThreadSafetyMode::NonThreadSafe,
+                    1,
+                    WindowsCompiler::VC15,
+                ),
+                new RequestedPackageAndVersion('foo/bar', '^1.1'),
+                PieOperation::Install,
+                [],
+                null,
+                false,
+            ),
+        ))($installerEvent);
+
+        self::assertSame(
+            'https://example.com/pre-packaged-binary-download-url.tgz',
+            $composerPackage->getDistUrl(),
+        );
+        self::assertSame(DownloadUrlMethod::PrePackagedBinary, DownloadUrlMethod::fromComposerPackage($composerPackage));
+        self::assertSame('tar', $composerPackage->getDistType());
+    }
+
+    public function testDistUrlIsUpdatedForPrePackagedTgzBinaryWhenBinaryIsNotFound(): void
+    {
+        $composerPackage = new CompletePackage('foo/bar', '1.2.3.0', '1.2.3');
+        $composerPackage->setDistType('zip');
+        $composerPackage->setDistUrl('https://example.com/git-archive-zip-url');
+        $composerPackage->setPhpExt([
+            'extension-name' => 'foobar',
+            'download-url-method' => ['pre-packaged-binary', 'composer-default'],
+        ]);
+
+        $installerEvent = new InstallerEvent(
+            InstallerEvents::PRE_OPERATIONS_EXEC,
+            $this->composer,
+            $this->io,
+            false,
+            true,
+            new Transaction([], [$composerPackage]),
+        );
+
+        $packageReleaseAssets = $this->createMock(PackageReleaseAssets::class);
+        $packageReleaseAssets
+            ->expects(self::once())
+            ->method('findMatchingReleaseAssetUrl')
+            ->willThrowException(new CouldNotFindReleaseAsset('nope not found'));
+
+        $this->container
+            ->method('get')
+            ->with(PackageReleaseAssets::class)
+            ->willReturn($packageReleaseAssets);
+
+        (new OverrideDownloadUrlInstallListener(
+            $this->composer,
+            $this->io,
+            $this->container,
+            new PieComposerRequest(
+                $this->createMock(IOInterface::class),
+                new TargetPlatform(
+                    OperatingSystem::NonWindows,
+                    OperatingSystemFamily::Linux,
+                    PhpBinaryPath::fromCurrentProcess(),
+                    Architecture::x86_64,
+                    ThreadSafetyMode::NonThreadSafe,
+                    1,
+                    WindowsCompiler::VC15,
+                ),
+                new RequestedPackageAndVersion('foo/bar', '^1.1'),
+                PieOperation::Install,
+                [],
+                null,
+                false,
+            ),
+        ))($installerEvent);
+
+        self::assertSame(
+            'https://example.com/git-archive-zip-url',
+            $composerPackage->getDistUrl(),
+        );
+        self::assertSame(DownloadUrlMethod::ComposerDefaultDownload, DownloadUrlMethod::fromComposerPackage($composerPackage));
+        self::assertSame('zip', $composerPackage->getDistType());
+    }
+
+    public function testNoSelectedDownloadUrlMethodWillThrowException(): void
+    {
+        $composerPackage = new CompletePackage('foo/bar', '1.2.3.0', '1.2.3');
+        $composerPackage->setDistType('zip');
+        $composerPackage->setDistUrl('https://example.com/git-archive-zip-url');
+        $composerPackage->setPhpExt([
+            'extension-name' => 'foobar',
+            'download-url-method' => ['pre-packaged-binary'],
+        ]);
+
+        $installerEvent = new InstallerEvent(
+            InstallerEvents::PRE_OPERATIONS_EXEC,
+            $this->composer,
+            $this->io,
+            false,
+            true,
+            new Transaction([], [$composerPackage]),
+        );
+
+        $packageReleaseAssets = $this->createMock(PackageReleaseAssets::class);
+        $packageReleaseAssets
+            ->expects(self::once())
+            ->method('findMatchingReleaseAssetUrl')
+            ->willThrowException(new CouldNotFindReleaseAsset('nope not found'));
+
+        $this->container
+            ->method('get')
+            ->with(PackageReleaseAssets::class)
+            ->willReturn($packageReleaseAssets);
+
+        $listener = new OverrideDownloadUrlInstallListener(
+            $this->composer,
+            $this->io,
+            $this->container,
+            new PieComposerRequest(
+                $this->createMock(IOInterface::class),
+                new TargetPlatform(
+                    OperatingSystem::NonWindows,
+                    OperatingSystemFamily::Linux,
+                    PhpBinaryPath::fromCurrentProcess(),
+                    Architecture::x86_64,
+                    ThreadSafetyMode::NonThreadSafe,
+                    1,
+                    WindowsCompiler::VC15,
+                ),
+                new RequestedPackageAndVersion('foo/bar', '^1.1'),
+                PieOperation::Install,
+                [],
+                null,
+                false,
+            ),
+        );
+
+        $this->expectException(CouldNotDetermineDownloadUrlMethod::class);
+        $this->expectExceptionMessage('Could not download foo/bar using pre-packaged-binary method: nope not found');
+        $listener($installerEvent);
     }
 }

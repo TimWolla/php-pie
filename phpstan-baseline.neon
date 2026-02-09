@@ -175,12 +175,6 @@ parameters:
 			path: src/DependencyResolver/Package.php
 
 		-
-			message: '#^@readonly property Php\\Pie\\DependencyResolver\\Package\:\:\$downloadUrlMethod is assigned outside of the constructor\.$#'
-			identifier: property.readOnlyByPhpDocAssignNotInConstructor
-			count: 1
-			path: src/DependencyResolver/Package.php
-
-		-
 			message: '#^@readonly property Php\\Pie\\DependencyResolver\\Package\:\:\$incompatibleOsFamilies is assigned outside of the constructor\.$#'
 			identifier: property.readOnlyByPhpDocAssignNotInConstructor
 			count: 1
@@ -200,6 +194,12 @@ parameters:
 
 		-
 			message: '#^@readonly property Php\\Pie\\DependencyResolver\\Package\:\:\$supportZts is assigned outside of the constructor\.$#'
+			identifier: property.readOnlyByPhpDocAssignNotInConstructor
+			count: 1
+			path: src/DependencyResolver/Package.php
+
+		-
+			message: '#^@readonly property Php\\Pie\\DependencyResolver\\Package\:\:\$supportedDownloadUrlMethods is assigned outside of the constructor\.$#'
 			identifier: property.readOnlyByPhpDocAssignNotInConstructor
 			count: 1
 			path: src/DependencyResolver/Package.php

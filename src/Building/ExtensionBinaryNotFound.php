@@ -10,6 +10,14 @@ use function sprintf;
 
 class ExtensionBinaryNotFound extends RuntimeException
 {
+    public static function fromPrePackagedBinary(string $expectedBinaryName): self
+    {
+        return new self(sprintf(
+            'Expected pre-packaged binary does not exist: %s',
+            $expectedBinaryName,
+        ));
+    }
+
     public static function fromExpectedBinary(string $expectedBinaryName): self
     {
         return new self(sprintf(

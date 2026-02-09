@@ -107,4 +107,12 @@ TEXT);
         self::assertSame(ThreadSafetyMode::NonThreadSafe, $platform->threadSafety);
         self::assertSame(Architecture::x86_64, $platform->architecture);
     }
+
+    public function testLibcFlavourIsMemoized(): void
+    {
+        self::assertSame(
+            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null)->libcFlavour(),
+            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null)->libcFlavour(),
+        );
+    }
 }

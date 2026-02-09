@@ -37,6 +37,7 @@ final class WindowsInstall implements Install
     public function __invoke(
         DownloadedPackage $downloadedPackage,
         TargetPlatform $targetPlatform,
+        BinaryFile|null $builtBinaryFile,
         IOInterface $io,
         bool $attemptToSetupIniFile,
     ): BinaryFile {

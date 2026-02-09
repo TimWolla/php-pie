@@ -11,6 +11,7 @@ use Php\Pie\Building\ExtensionBinaryNotFound;
 use Php\Pie\Building\UnixBuild;
 use Php\Pie\DependencyResolver\Package;
 use Php\Pie\Downloading\DownloadedPackage;
+use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\ExtensionName;
 use Php\Pie\ExtensionType;
 use Php\Pie\Platform\TargetPhp\PhpBinaryPath;
@@ -25,9 +26,12 @@ use function dirname;
 #[CoversClass(UnixBuild::class)]
 final class UnixBuildTest extends TestCase
 {
-    private const TEST_EXTENSION_PATH = __DIR__ . '/../../assets/pie_test_ext';
+    private const COMPOSER_PACKAGE_EXTRA_KEY = 'download-url-method';
+    private const TEST_EXTENSION_PATH        = __DIR__ . '/../../assets/pie_test_ext';
+    private const TEST_PREBUILT_PATH_VALID   = __DIR__ . '/../../assets/pre-packaged-binary-examples/valid';
+    private const TEST_PREBUILT_PATH_INVALID = __DIR__ . '/../../assets/pre-packaged-binary-examples/invalid';
 
-    public function testUnixBuildCanBuildExtension(): void
+    public function testUnixSourceBuildCanBuildExtension(): void
     {
         if (Platform::isWindows()) {
             self::markTestSkipped('Unix build test cannot be run on Windows');
@@ -35,9 +39,14 @@ final class UnixBuildTest extends TestCase
 
         $output = new BufferIO();
 
+        $composerPackage = $this->createMock(CompletePackageInterface::class);
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::ComposerDefaultDownload->value]);
+
         $downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(
             new Package(
-                $this->createMock(CompletePackageInterface::class),
+                $composerPackage,
                 ExtensionType::PhpModule,
                 ExtensionName::normaliseFromString('pie_test_ext'),
                 'pie_test_ext',
@@ -76,7 +85,7 @@ final class UnixBuildTest extends TestCase
         (new Process(['phpize', '--clean'], $downloadedPackage->extractedSourcePath))->mustRun();
     }
 
-    public function testUnixBuildWillThrowExceptionWhenExpectedBinaryNameMismatches(): void
+    public function testUnixSourceBuildWillThrowExceptionWhenExpectedBinaryNameMismatches(): void
     {
         if (Platform::isWindows()) {
             self::markTestSkipped('Unix build test cannot be run on Windows');
@@ -84,9 +93,14 @@ final class UnixBuildTest extends TestCase
 
         $output = new BufferIO();
 
+        $composerPackage = $this->createMock(CompletePackageInterface::class);
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::ComposerDefaultDownload->value]);
+
         $downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(
             new Package(
-                $this->createMock(CompletePackageInterface::class),
+                $composerPackage,
                 ExtensionType::PhpModule,
                 ExtensionName::normaliseFromString('mismatched_name'),
                 'pie_test_ext',
@@ -113,7 +127,7 @@ final class UnixBuildTest extends TestCase
         }
     }
 
-    public function testUnixBuildCanBuildExtensionWithBuildPath(): void
+    public function testUnixSourceBuildCanBuildExtensionWithBuildPath(): void
     {
         if (Platform::isWindows()) {
             self::markTestSkipped('Unix build test cannot be run on Windows');
@@ -126,6 +140,9 @@ final class UnixBuildTest extends TestCase
         $composerPackage->method('getPrettyVersion')->willReturn('0.1.0');
         $composerPackage->method('getType')->willReturn('php-ext');
         $composerPackage->method('getPhpExt')->willReturn(['build-path' => 'pie_test_ext']);
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::ComposerDefaultDownload->value]);
 
         $downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(
             Package::fromComposerCompletePackage($composerPackage),
@@ -161,6 +178,77 @@ final class UnixBuildTest extends TestCase
         (new Process(['phpize', '--clean'], $downloadedPackage->extractedSourcePath))->mustRun();
     }
 
+    public function testUnixBinaryBuildThrowsErrorWhenBinaryFileNotFound(): void
+    {
+        if (Platform::isWindows()) {
+            self::markTestSkipped('Unix build test cannot be run on Windows');
+        }
+
+        $output = new BufferIO();
+
+        $composerPackage = $this->createMock(CompletePackageInterface::class);
+        $composerPackage->method('getPrettyName')->willReturn('myvendor/pie_test_ext');
+        $composerPackage->method('getPrettyVersion')->willReturn('0.1.0');
+        $composerPackage->method('getType')->willReturn('php-ext');
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::PrePackagedBinary->value]);
+
+        $downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(
+            Package::fromComposerCompletePackage($composerPackage),
+            self::TEST_PREBUILT_PATH_INVALID,
+        );
+
+        $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null);
+        $unixBuilder    = new UnixBuild();
+
+        $this->expectException(ExtensionBinaryNotFound::class);
+        $this->expectExceptionMessage('Expected pre-packaged binary does not exist');
+        $unixBuilder->__invoke(
+            $downloadedPackage,
+            $targetPlatform,
+            ['--enable-pie_test_ext'],
+            $output,
+            null,
+        );
+    }
+
+    public function testUnixBinaryBuildReturnsBinaryFile(): void
+    {
+        if (Platform::isWindows()) {
+            self::markTestSkipped('Unix build test cannot be run on Windows');
+        }
+
+        $output = new BufferIO();
+
+        $composerPackage = $this->createMock(CompletePackageInterface::class);
+        $composerPackage->method('getPrettyName')->willReturn('myvendor/pie_test_ext');
+        $composerPackage->method('getPrettyVersion')->willReturn('0.1.0');
+        $composerPackage->method('getType')->willReturn('php-ext');
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::PrePackagedBinary->value]);
+
+        $downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(
+            Package::fromComposerCompletePackage($composerPackage),
+            self::TEST_PREBUILT_PATH_VALID,
+        );
+
+        $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null);
+        $unixBuilder    = new UnixBuild();
+
+        $binaryFile = $unixBuilder->__invoke(
+            $downloadedPackage,
+            $targetPlatform,
+            ['--enable-pie_test_ext'],
+            $output,
+            null,
+        );
+
+        self::assertSame('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', $binaryFile->checksum);
+        self::assertStringEndsWith('pre-packaged-binary-examples/valid/pie_test_ext.so', $binaryFile->filePath);
+    }
+
     public function testCleanupDoesNotCleanWhenConfigureIsMissing(): void
     {
         if (Platform::isWindows()) {
@@ -172,9 +260,14 @@ final class UnixBuildTest extends TestCase
 
         $output = new BufferIO(verbosity: OutputInterface::VERBOSITY_VERBOSE);
 
+        $composerPackage = $this->createMock(CompletePackageInterface::class);
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::ComposerDefaultDownload->value]);
+
         $downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(
             new Package(
-                $this->createMock(CompletePackageInterface::class),
+                $composerPackage,
                 ExtensionType::PhpModule,
                 ExtensionName::normaliseFromString('pie_test_ext'),
                 'pie_test_ext',
@@ -209,9 +302,14 @@ final class UnixBuildTest extends TestCase
 
         $output = new BufferIO(verbosity: OutputInterface::VERBOSITY_VERBOSE);
 
+        $composerPackage = $this->createMock(CompletePackageInterface::class);
+        $composerPackage
+            ->method('getExtra')
+            ->willReturn([self::COMPOSER_PACKAGE_EXTRA_KEY => DownloadUrlMethod::ComposerDefaultDownload->value]);
+
         $downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(
             new Package(
-                $this->createMock(CompletePackageInterface::class),
+                $composerPackage,
                 ExtensionType::PhpModule,
                 ExtensionName::normaliseFromString('pie_test_ext'),
                 'pie_test_ext',

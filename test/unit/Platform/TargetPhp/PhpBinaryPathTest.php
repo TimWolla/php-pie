@@ -8,6 +8,7 @@ use Composer\IO\BufferIO;
 use Composer\Util\Platform;
 use Php\Pie\ExtensionName;
 use Php\Pie\Platform\Architecture;
+use Php\Pie\Platform\DebugBuild;
 use Php\Pie\Platform\OperatingSystem;
 use Php\Pie\Platform\OperatingSystemFamily;
 use Php\Pie\Platform\TargetPhp\Exception\ExtensionIsNotLoaded;
@@ -444,5 +445,27 @@ final class PhpBinaryPathTest extends TestCase
             ->willReturn('');
 
         self::assertNull($phpBinary->buildProvider());
+    }
+
+    public function testDebugBuildModeReturnsDebugWhenYes(): void
+    {
+        $phpBinary = $this->createPartialMock(PhpBinaryPath::class, ['phpinfo']);
+
+        $phpBinary->expects(self::once())
+            ->method('phpinfo')
+            ->willReturn('Debug Build => no');
+
+        self::assertSame(DebugBuild::NoDebug, $phpBinary->debugMode());
+    }
+
+    public function testDebugBuildModeReturnsNoDebugWhenNo(): void
+    {
+        $phpBinary = $this->createPartialMock(PhpBinaryPath::class, ['phpinfo']);
+
+        $phpBinary->expects(self::once())
+            ->method('phpinfo')
+            ->willReturn('Debug Build => yes');
+
+        self::assertSame(DebugBuild::Debug, $phpBinary->debugMode());
     }
 }

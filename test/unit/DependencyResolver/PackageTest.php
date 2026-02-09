@@ -148,33 +148,32 @@ final class PackageTest extends TestCase
         self::assertSame('some/subdirectory/path/', $package->buildPath());
     }
 
-    public function testDownloadUrlMethodWithStringHasValidDownloadUrlMethod(): void
+    public function testFromComposerCompletePackageWithStringDownloadUrlMethod(): void
     {
         $composerCompletePackage = new CompletePackage('vendor/foo', '1.2.3.0', '1.2.3');
-        $composerCompletePackage->setPhpExt(['download-url-method' => 'composer-default']);
+        $composerCompletePackage->setPhpExt(['download-url-method' => 'pre-packaged-binary']);
 
-        $package = Package::fromComposerCompletePackage($composerCompletePackage);
-
-        self::assertSame(DownloadUrlMethod::ComposerDefaultDownload, $package->downloadUrlMethod());
+        self::assertSame(
+            [DownloadUrlMethod::PrePackagedBinary],
+            Package::fromComposerCompletePackage($composerCompletePackage)->supportedDownloadUrlMethods(),
+        );
     }
 
-    public function testDownloadUrlMethodWithSingleItemListHasValidDownloadUrlMethod(): void
+    public function testFromComposerCompletePackageWithListDownloadUrlMethods(): void
     {
         $composerCompletePackage = new CompletePackage('vendor/foo', '1.2.3.0', '1.2.3');
-        $composerCompletePackage->setPhpExt(['download-url-method' => ['composer-default']]);
+        $composerCompletePackage->setPhpExt(['download-url-method' => ['pre-packaged-binary', 'composer-default']]);
 
-        $package = Package::fromComposerCompletePackage($composerCompletePackage);
-
-        self::assertSame(DownloadUrlMethod::ComposerDefaultDownload, $package->downloadUrlMethod());
+        self::assertSame(
+            [DownloadUrlMethod::PrePackagedBinary, DownloadUrlMethod::ComposerDefaultDownload],
+            Package::fromComposerCompletePackage($composerCompletePackage)->supportedDownloadUrlMethods(),
+        );
     }
 
-    public function testDownloadUrlMethodWithMultiItemListIsNotYetSupported(): void
+    public function testFromComposerCompletePackageWithOmittedDownloadUrlMethod(): void
     {
-        $composerCompletePackage = new CompletePackage('vendor/foo', '1.2.3.0', '1.2.3');
-        $composerCompletePackage->setPhpExt(['download-url-method' => ['pre-packaged-source', 'composer-default']]);
-
-        $package = Package::fromComposerCompletePackage($composerCompletePackage);
-
-        self::assertSame(DownloadUrlMethod::ComposerDefaultDownload, $package->downloadUrlMethod());
+        self::assertNull(Package::fromComposerCompletePackage(
+            new CompletePackage('vendor/foo', '1.2.3.0', '1.2.3'),
+        )->supportedDownloadUrlMethods());
     }
 }

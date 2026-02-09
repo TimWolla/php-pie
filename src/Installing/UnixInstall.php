@@ -6,14 +6,18 @@ namespace Php\Pie\Installing;
 
 use Composer\IO\IOInterface;
 use Php\Pie\Downloading\DownloadedPackage;
+use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\File\BinaryFile;
 use Php\Pie\File\Sudo;
 use Php\Pie\Platform\TargetPlatform;
 use Php\Pie\Util\Process;
 use RuntimeException;
+use Webmozart\Assert\Assert;
 
-use function array_unshift;
+use function array_map;
+use function array_merge;
 use function file_exists;
+use function implode;
 use function is_writable;
 use function sprintf;
 
@@ -29,6 +33,7 @@ final class UnixInstall implements Install
     public function __invoke(
         DownloadedPackage $downloadedPackage,
         TargetPlatform $targetPlatform,
+        BinaryFile|null $builtBinaryFile,
         IOInterface $io,
         bool $attemptToSetupIniFile,
     ): BinaryFile {
@@ -41,7 +46,30 @@ final class UnixInstall implements Install
             $sharedObjectName,
         );
 
-        $makeInstallCommand = ['make', 'install'];
+        $installCommands = [];
+        switch (DownloadUrlMethod::fromDownloadedPackage($downloadedPackage)) {
+            case DownloadUrlMethod::PrePackagedBinary:
+                Assert::notNull($builtBinaryFile);
+
+                if (file_exists($expectedSharedObjectLocation)) {
+                    $installCommands[] = [
+                        'rm',
+                        '-v',
+                        $expectedSharedObjectLocation,
+                    ];
+                }
+
+                $installCommands[] = [
+                    'cp',
+                    '-v',
+                    $builtBinaryFile->filePath,
+                    $targetExtensionPath,
+                ];
+                break;
+
+            default:
+                $installCommands[] = ['make', 'install'];
+        }
 
         // If the target directory isn't writable, or a .so file already exists and isn't writable, try to use sudo
         if (
@@ -55,16 +83,20 @@ final class UnixInstall implements Install
                 '<comment>Cannot write to %s, so using sudo to elevate privileges.</comment>',
                 $targetExtensionPath,
             ));
-            array_unshift($makeInstallCommand, Sudo::find());
+            $installCommands = array_map(static fn (array $command) => array_merge(['sudo'], $command), $installCommands);
         }
 
-        $makeInstallOutput = Process::run(
-            $makeInstallCommand,
-            $downloadedPackage->extractedSourcePath,
-            self::MAKE_INSTALL_TIMEOUT_SECS,
-        );
+        $io->write(sprintf('<info>Install commands are: %s</info>', implode(', ', array_map(static fn (array $command) => implode(' ', $command), $installCommands))), verbosity: IOInterface::VERY_VERBOSE);
 
-        $io->write($makeInstallOutput, verbosity: IOInterface::VERY_VERBOSE);
+        foreach ($installCommands as $installCommand) {
+            $makeInstallOutput = Process::run(
+                $installCommand,
+                $downloadedPackage->extractedSourcePath,
+                self::MAKE_INSTALL_TIMEOUT_SECS,
+            );
+
+            $io->write($makeInstallOutput, verbosity: IOInterface::VERY_VERBOSE);
+        }
 
         if (! file_exists($expectedSharedObjectLocation)) {
             throw new RuntimeException('Install failed, ' . $expectedSharedObjectLocation . ' was not installed.');
