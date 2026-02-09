@@ -36,7 +36,8 @@ final class UnixBuild implements Build
         IOInterface $io,
         PhpizePath|null $phpizePath,
     ): BinaryFile {
-        switch (DownloadUrlMethod::fromDownloadedPackage($downloadedPackage)) {
+        $selectedDownloadMethod = DownloadUrlMethod::fromDownloadedPackage($downloadedPackage);
+        switch ($selectedDownloadMethod) {
             case DownloadUrlMethod::PrePackagedBinary:
                 return $this->prePackagedBinary($downloadedPackage, $io);
 
@@ -45,7 +46,7 @@ final class UnixBuild implements Build
                 return $this->buildFromSource($downloadedPackage, $targetPlatform, $configureOptions, $io, $phpizePath);
 
             default:
-                throw new LogicException('Unknown download method');
+                throw new LogicException('Unsupported download method: ' . $selectedDownloadMethod->value);
         }
     }
 
