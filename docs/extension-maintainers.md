@@ -278,7 +278,7 @@ conventions:
 
 The replacements are:
 
-  * `{ExtensionName}` the name of your extension, e.g. `xdebug` (hint: this
+  * `{ExtensionName}` the name of your extension, e.g. `yourext` (hint: this
     is not your Composer package name!)
   * `{PhpVersion}` the major and minor version of PHP, e.g. `8.5`
   * `{Version}` the version of your extension, e.g. `1.20.1`
@@ -297,18 +297,18 @@ The replacements are:
 
 Some examples of valid asset names:
 
- * `php_xdebug-4.1_php8.4-x86_64-linux-glibc.zip` (or `php_xdebug-4.1_php8.4-x86_64-glibc-nts.zip`)
- * `php_xdebug-4.1_php8.4-x86_64-linux-musl.zip` (or `php_xdebug-4.1_php8.4-x86_64-musl-nts.zip`)
- * `php_xdebug-4.1_php8.4-arm64-linux-glibc.zip` (or `php_xdebug-4.1_php8.4-arm64-glibc-nts.zip`)
- * `php_xdebug-4.1_php8.4-arm64-linux-musl.zip` (or `php_xdebug-4.1_php8.4-arm64-musl-nts.zip`)
- * `php_xdebug-4.1_php8.4-x86_64-linux-glibc-zts.zip`
- * `php_xdebug-4.1_php8.4-x86_64-linux-musl-zts.zip`
- * `php_xdebug-4.1_php8.4-arm64-linux-glibc-zts.zip`
- * `php_xdebug-4.1_php8.4-arm64-linux-musl-zts.zip`
- * `php_xdebug-4.1_php8.4-x86_64-linux-glibc-debug.zip`
- * `php_xdebug-4.1_php8.4-x86_64-linux-musl-debug.zip`
- * `php_xdebug-4.1_php8.4-arm64-linux-glibc-debug.zip`
- * `php_xdebug-4.1_php8.4-arm64-linux-musl-debug.zip`
+ * `php_yourext-4.1_php8.4-x86_64-linux-glibc.zip` (or `php_yourext-4.1_php8.4-x86_64-glibc-nts.zip`)
+ * `php_yourext-4.1_php8.4-x86_64-linux-musl.zip` (or `php_yourext-4.1_php8.4-x86_64-musl-nts.zip`)
+ * `php_yourext-4.1_php8.4-arm64-linux-glibc.zip` (or `php_yourext-4.1_php8.4-arm64-glibc-nts.zip`)
+ * `php_yourext-4.1_php8.4-arm64-linux-musl.zip` (or `php_yourext-4.1_php8.4-arm64-musl-nts.zip`)
+ * `php_yourext-4.1_php8.4-x86_64-linux-glibc-zts.zip`
+ * `php_yourext-4.1_php8.4-x86_64-linux-musl-zts.zip`
+ * `php_yourext-4.1_php8.4-arm64-linux-glibc-zts.zip`
+ * `php_yourext-4.1_php8.4-arm64-linux-musl-zts.zip`
+ * `php_yourext-4.1_php8.4-x86_64-linux-glibc-debug.zip`
+ * `php_yourext-4.1_php8.4-x86_64-linux-musl-debug.zip`
+ * `php_yourext-4.1_php8.4-arm64-linux-glibc-debug.zip`
+ * `php_yourext-4.1_php8.4-arm64-linux-musl-debug.zip`
 
 It is recommended that `pre-packaged-binary` is combined with `composer-default`
 as a fallback mechanism, if a particular combination is supported, but not
