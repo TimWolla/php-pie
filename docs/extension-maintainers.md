@@ -532,4 +532,4 @@ jobs:
               token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-Source: [https://github.com/php/php-windows-builder?tab=readme-ov-file#example-workflow-to-build-and-release-an-extension](https://github.com/php/php-windows-builder?tab=readme-ov-file#example-workflow-to-build-and-release-an-extension)
+Source: [https://github.com/php/php-windows-builder?tab=readme-ov-file#examples](https://github.com/php/php-windows-builder?tab=readme-ov-file#examples)
