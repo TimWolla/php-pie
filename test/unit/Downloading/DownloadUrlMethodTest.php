@@ -52,6 +52,7 @@ final class DownloadUrlMethodTest extends TestCase
             ThreadSafetyMode::NonThreadSafe,
             1,
             WindowsCompiler::VC15,
+            null,
         );
 
         $downloadUrlMethods = DownloadUrlMethod::possibleDownloadUrlMethodsForPackage($package, $targetPlatform);
@@ -87,6 +88,7 @@ final class DownloadUrlMethodTest extends TestCase
             Architecture::x86_64,
             ThreadSafetyMode::NonThreadSafe,
             1,
+            null,
             null,
         );
 
@@ -133,6 +135,7 @@ final class DownloadUrlMethodTest extends TestCase
             ThreadSafetyMode::ThreadSafe,
             1,
             null,
+            null,
         );
 
         $downloadUrlMethods = DownloadUrlMethod::possibleDownloadUrlMethodsForPackage($package, $targetPlatform);
@@ -169,6 +172,7 @@ final class DownloadUrlMethodTest extends TestCase
             Architecture::x86_64,
             ThreadSafetyMode::NonThreadSafe,
             1,
+            null,
             null,
         );
 
@@ -207,6 +211,7 @@ final class DownloadUrlMethodTest extends TestCase
             Architecture::x86_64,
             ThreadSafetyMode::NonThreadSafe,
             1,
+            null,
             null,
         );
 

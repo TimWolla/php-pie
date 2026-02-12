@@ -34,7 +34,6 @@ final class UnixBuild implements Build
         TargetPlatform $targetPlatform,
         array $configureOptions,
         IOInterface $io,
-        PhpizePath|null $phpizePath,
     ): BinaryFile {
         $selectedDownloadMethod = DownloadUrlMethod::fromDownloadedPackage($downloadedPackage);
         switch ($selectedDownloadMethod) {
@@ -43,7 +42,7 @@ final class UnixBuild implements Build
 
             case DownloadUrlMethod::ComposerDefaultDownload:
             case DownloadUrlMethod::PrePackagedSourceDownload:
-                return $this->buildFromSource($downloadedPackage, $targetPlatform, $configureOptions, $io, $phpizePath);
+                return $this->buildFromSource($downloadedPackage, $targetPlatform, $configureOptions, $io);
 
             default:
                 throw new LogicException('Unsupported download method: ' . $selectedDownloadMethod->value);
@@ -74,7 +73,6 @@ final class UnixBuild implements Build
         TargetPlatform $targetPlatform,
         array $configureOptions,
         IOInterface $io,
-        PhpizePath|null $phpizePath,
     ): BinaryFile {
         $outputCallback = null;
         if ($io->isVerbose()) {
@@ -88,7 +86,7 @@ final class UnixBuild implements Build
             };
         }
 
-        $phpizePath ??= PhpizePath::guessFrom($targetPlatform->phpBinaryPath);
+        $phpizePath = $targetPlatform->phpizePath ?? PhpizePath::guessFrom($targetPlatform->phpBinaryPath);
 
         /**
          * Call a cleanup first; most of the time, we expect to be changing a

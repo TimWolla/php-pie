@@ -16,12 +16,6 @@ parameters:
 			message: '#^Cannot cast mixed to string\.$#'
 			identifier: cast.string
 			count: 1
-			path: src/Command/CommandHelper.php
-
-		-
-			message: '#^Cannot cast mixed to string\.$#'
-			identifier: cast.string
-			count: 1
 			path: src/Command/InstallExtensionsForProjectCommand.php
 
 		-
@@ -479,6 +473,12 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: test/unit/Installing/InstallForPhpProject/InstallSelectedPackageTest.php
+
+		-
+			message: '#^Access to an undefined property Php\\PieUnitTest\\SelfManage\\BuildTools\\PhpizeBuildToolFinderTest\:\:\$phpBinaryPath\.$#'
+			identifier: property.notFound
+			count: 3
+			path: test/unit/SelfManage/BuildTools/PhpizeBuildToolFinderTest.php
 
 		-
 			message: '#^Method Php\\PieUnitTest\\SelfManage\\Verify\\FallbackVerificationUsingOpenSslTest\:\:prepareCertificateAndSignature\(\) should return array\{string, string\} but returns array\{mixed, mixed\}\.$#'

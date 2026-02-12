@@ -62,11 +62,11 @@ final class InstallAndBuildProcessTest extends TestCase
                 ThreadSafetyMode::NonThreadSafe,
                 1,
                 null,
+                null,
             ),
             new RequestedPackageAndVersion('foo/bar', '^1.0'),
             PieOperation::Download,
             ['--foo', '--bar="yes"'],
-            null,
             false,
         );
         $composerPackage = new CompletePackage('foo/bar', '1.2.3.0', '1.2.3');
@@ -103,11 +103,11 @@ final class InstallAndBuildProcessTest extends TestCase
                 ThreadSafetyMode::NonThreadSafe,
                 1,
                 null,
+                null,
             ),
             new RequestedPackageAndVersion('foo/bar', '^1.0'),
             PieOperation::Build,
             ['--foo', '--bar="yes"'],
-            null,
             false,
         );
         $composerPackage = new CompletePackage('foo/bar', '1.2.3.0', '1.2.3');
@@ -147,11 +147,11 @@ final class InstallAndBuildProcessTest extends TestCase
                 ThreadSafetyMode::NonThreadSafe,
                 1,
                 null,
+                null,
             ),
             new RequestedPackageAndVersion('foo/bar', '^1.0'),
             PieOperation::Install,
             ['--foo', '--bar="yes"'],
-            null,
             false,
         );
         $composerPackage = new CompletePackage('foo/bar', '1.2.3.0', '1.2.3');

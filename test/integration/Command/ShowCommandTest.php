@@ -82,6 +82,7 @@ final class ShowCommandTest extends TestCase
                     $phpConfig,
                 ),
                 1,
+                null,
             ),
         )
             ->addRequire(self::TEST_PACKAGE, '^2.0');
@@ -129,6 +130,7 @@ final class ShowCommandTest extends TestCase
                     $phpConfig,
                 ),
                 1,
+                null,
             ),
         )
             ->addRequire(self::TEST_PACKAGE, '^2.0,<=2.0.3');
@@ -176,6 +178,7 @@ final class ShowCommandTest extends TestCase
                     $phpConfig,
                 ),
                 1,
+                null,
             ),
         )
             ->addRequire(self::TEST_PACKAGE, '^2.0,<2.0.3');

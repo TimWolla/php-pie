@@ -30,7 +30,7 @@ class BinaryBuildToolFinder
         return is_array($this->tool) ? implode('/', $this->tool) : $this->tool;
     }
 
-    public function check(): bool
+    public function check(TargetPlatform $targetPlatform): bool
     {
         $tools = is_array($this->tool) ? $this->tool : [$this->tool];
 

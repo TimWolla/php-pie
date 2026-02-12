@@ -40,6 +40,7 @@ final class CheckAllBuildToolsTest extends TestCase
                 ThreadSafetyMode::NonThreadSafe,
                 1,
                 null,
+                null,
             ),
             false,
         );
@@ -69,6 +70,7 @@ final class CheckAllBuildToolsTest extends TestCase
                 Architecture::x86_64,
                 ThreadSafetyMode::NonThreadSafe,
                 1,
+                null,
                 null,
             ),
             false,
@@ -100,6 +102,7 @@ final class CheckAllBuildToolsTest extends TestCase
                 ThreadSafetyMode::NonThreadSafe,
                 1,
                 null,
+                null,
             ),
             false,
         );
@@ -129,6 +132,7 @@ final class CheckAllBuildToolsTest extends TestCase
                 Architecture::x86_64,
                 ThreadSafetyMode::NonThreadSafe,
                 1,
+                null,
                 null,
             ),
             true,

@@ -6,6 +6,7 @@ namespace Php\Pie\Platform;
 
 use Fidry\CpuCoreCounter\CpuCoreCounter;
 use Php\Pie\Platform\TargetPhp\PhpBinaryPath;
+use Php\Pie\Platform\TargetPhp\PhpizePath;
 
 use function array_key_exists;
 use function explode;
@@ -31,6 +32,7 @@ class TargetPlatform
         public readonly ThreadSafetyMode $threadSafety,
         public readonly int $makeParallelJobs,
         public readonly WindowsCompiler|null $windowsCompiler,
+        public readonly PhpizePath|null $phpizePath,
     ) {
     }
 
@@ -48,7 +50,7 @@ class TargetPlatform
         return function_exists('posix_getuid') && posix_getuid() === 0;
     }
 
-    public static function fromPhpBinaryPath(PhpBinaryPath $phpBinaryPath, int|null $makeParallelJobs): self
+    public static function fromPhpBinaryPath(PhpBinaryPath $phpBinaryPath, int|null $makeParallelJobs, PhpizePath|null $phpizePath): self
     {
         $os       = $phpBinaryPath->operatingSystem();
         $osFamily = $phpBinaryPath->operatingSystemFamily();
@@ -133,6 +135,7 @@ class TargetPlatform
             $threadSafety,
             $makeParallelJobs,
             $windowsCompiler,
+            $phpizePath,
         );
     }
 }

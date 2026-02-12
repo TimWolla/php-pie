@@ -85,7 +85,7 @@ final class UnixInstallTest extends TestCase
         }
 
         $output         = new BufferIO();
-        $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromPhpConfigExecutable($phpConfig), null);
+        $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromPhpConfigExecutable($phpConfig), null, null);
         $extensionPath  = $targetPlatform->phpBinaryPath->extensionPath();
 
         $composerPackage = $this->createMock(CompletePackageInterface::class);
@@ -110,7 +110,6 @@ final class UnixInstallTest extends TestCase
             $targetPlatform,
             ['--enable-pie_test_ext'],
             $output,
-            null,
         );
 
         $installedSharedObject = (new UnixInstall(new SetupIniFile(new PickBestSetupIniApproach([]))))->__invoke(
@@ -147,7 +146,7 @@ final class UnixInstallTest extends TestCase
         }
 
         $output         = new BufferIO();
-        $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromPhpConfigExecutable($phpConfig), null);
+        $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromPhpConfigExecutable($phpConfig), null, null);
         $extensionPath  = $targetPlatform->phpBinaryPath->extensionPath();
 
         // First build it (otherwise the test assets would need to have a binary for every test platform...)
@@ -171,7 +170,6 @@ final class UnixInstallTest extends TestCase
             $targetPlatform,
             ['--enable-pie_test_ext'],
             $output,
-            null,
         );
 
         /**

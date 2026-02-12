@@ -8,6 +8,7 @@ use Php\Pie\Platform\Architecture;
 use Php\Pie\Platform\OperatingSystem;
 use Php\Pie\Platform\OperatingSystemFamily;
 use Php\Pie\Platform\TargetPhp\PhpBinaryPath;
+use Php\Pie\Platform\TargetPhp\PhpizePath;
 use Php\Pie\Platform\TargetPlatform;
 use Php\Pie\Platform\ThreadSafetyMode;
 use Php\Pie\Platform\WindowsCompiler;
@@ -54,7 +55,7 @@ Zend Extension Build => API420230831,TS,VS16
 PHP Extension Build => API20230831,TS,VS16
 TEXT);
 
-        $platform = TargetPlatform::fromPhpBinaryPath($phpBinaryPath, null);
+        $platform = TargetPlatform::fromPhpBinaryPath($phpBinaryPath, null, null);
 
         self::assertSame(OperatingSystem::Windows, $platform->operatingSystem);
         self::assertSame(OperatingSystemFamily::Windows, $platform->operatingSystemFamily);
@@ -99,7 +100,7 @@ Debug Build => no
 Thread Safety => disabled
 TEXT);
 
-        $platform = TargetPlatform::fromPhpBinaryPath($phpBinaryPath, null);
+        $platform = TargetPlatform::fromPhpBinaryPath($phpBinaryPath, null, null);
 
         self::assertSame(OperatingSystem::NonWindows, $platform->operatingSystem);
         self::assertSame(OperatingSystemFamily::Linux, $platform->operatingSystemFamily);
@@ -111,8 +112,52 @@ TEXT);
     public function testLibcFlavourIsMemoized(): void
     {
         self::assertSame(
-            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null)->libcFlavour(),
-            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null)->libcFlavour(),
+            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null, null)->libcFlavour(),
+            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null, null)->libcFlavour(),
+        );
+    }
+
+    public function testPhpizePathCanBeSet(): void
+    {
+        $phpBinaryPath = $this->createMock(PhpBinaryPath::class);
+        $phpBinaryPath->expects(self::any())
+            ->method('operatingSystem')
+            ->willReturn(OperatingSystem::NonWindows);
+        $phpBinaryPath->expects(self::any())
+            ->method('operatingSystemFamily')
+            ->willReturn(OperatingSystemFamily::Linux);
+        $phpBinaryPath->expects(self::any())
+            ->method('machineType')
+            ->willReturn(Architecture::x86_64);
+        $phpBinaryPath->expects(self::any())
+            ->method('phpinfo')
+            ->willReturn(<<<'TEXT'
+phpinfo()
+PHP Version => 8.3.6
+
+System => Linux myhostname 1.2.3 Ubuntu x86_64
+Build Date => Apr 11 2024 20:23:38
+Build System => Linux
+Server API => Command Line Interface
+Virtual Directory Support => disabled
+Configuration File (php.ini) Path => /etc/php/8.3/cli
+Loaded Configuration File => /etc/php/8.3/cli/php.ini
+Scan this dir for additional .ini files => /etc/php/8.3/cli/conf.d
+Additional .ini files parsed => (none)
+PHP API => 20230831
+PHP Extension => 20230831
+Zend Extension => 420230831
+Zend Extension Build => API420230831,NTS
+PHP Extension Build => API20230831,NTS
+Debug Build => no
+Thread Safety => disabled
+TEXT);
+
+        self::assertSame(
+            '/path/to/phpize',
+            TargetPlatform::fromPhpBinaryPath($phpBinaryPath, null, new PhpizePath('/path/to/phpize'))
+                ->phpizePath
+                ?->phpizeBinaryPath,
         );
     }
 }

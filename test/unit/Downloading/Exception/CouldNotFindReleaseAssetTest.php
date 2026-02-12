@@ -43,6 +43,7 @@ final class CouldNotFindReleaseAssetTest extends TestCase
                 ThreadSafetyMode::NonThreadSafe,
                 1,
                 null,
+                null,
             ),
             $package,
             DownloadUrlMethod::PrePackagedSourceDownload,
@@ -72,6 +73,7 @@ final class CouldNotFindReleaseAssetTest extends TestCase
                 ThreadSafetyMode::NonThreadSafe,
                 1,
                 WindowsCompiler::VS17,
+                null,
             ),
             $package,
             DownloadUrlMethod::WindowsBinaryDownload,
@@ -107,6 +109,7 @@ final class CouldNotFindReleaseAssetTest extends TestCase
             Architecture::x86,
             ThreadSafetyMode::NonThreadSafe,
             1,
+            null,
             null,
         ));
 

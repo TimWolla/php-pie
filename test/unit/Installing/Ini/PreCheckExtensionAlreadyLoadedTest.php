@@ -52,6 +52,7 @@ final class PreCheckExtensionAlreadyLoadedTest extends TestCase
             ThreadSafetyMode::ThreadSafe,
             1,
             null,
+            null,
         );
 
         $this->downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(

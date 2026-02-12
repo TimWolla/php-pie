@@ -66,6 +66,7 @@ final class VersionSelectorFactoryTest extends TestCase
                 ThreadSafetyMode::NonThreadSafe,
                 1,
                 null,
+                null,
             ),
         );
 

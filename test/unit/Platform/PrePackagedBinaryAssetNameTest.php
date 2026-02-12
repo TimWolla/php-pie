@@ -36,6 +36,7 @@ final class PrePackagedBinaryAssetNameTest extends TestCase
             ThreadSafetyMode::NonThreadSafe,
             1,
             null,
+            null,
         );
 
         $libc = $targetPlatform->libcFlavour();
@@ -74,6 +75,7 @@ final class PrePackagedBinaryAssetNameTest extends TestCase
             ThreadSafetyMode::ThreadSafe,
             1,
             null,
+            null,
         );
 
         $libc = $targetPlatform->libcFlavour();
@@ -109,6 +111,7 @@ final class PrePackagedBinaryAssetNameTest extends TestCase
             Architecture::arm64,
             ThreadSafetyMode::NonThreadSafe,
             1,
+            null,
             null,
         );
 
