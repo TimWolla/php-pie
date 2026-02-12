@@ -276,6 +276,22 @@ final class PhpBinaryPathTest extends TestCase
         );
     }
 
+    #[RequiresOperatingSystemFamily('Linux')]
+    public function testExtensionPathWithInstallRootPrefixOnLinuxThatAlreadyExists(): void
+    {
+        $installRoot = '/tmp/' . uniqid('pie-test-install-root-existing-', true);
+        $phpBinary   = PhpBinaryPath::fromCurrentProcess();
+
+        $expectedExtensionDir = $installRoot . ini_get('extension_dir');
+        mkdir($expectedExtensionDir, 0777, true);
+        self::assertDirectoryExists($expectedExtensionDir);
+
+        self::assertSame(
+            $expectedExtensionDir,
+            $phpBinary->extensionPath($installRoot),
+        );
+    }
+
     #[RequiresOperatingSystemFamily('Windows')]
     public function testExtensionPathOnWindows(): void
     {
@@ -334,6 +350,19 @@ final class PhpBinaryPathTest extends TestCase
 
         self::assertSame($configuredExtensionPath, $phpBinary->extensionPath());
         self::assertDirectoryExists($configuredExtensionPath);
+    }
+
+    #[RequiresOperatingSystemFamily('Linux')]
+    public function testExtensionPathWithInstallRootPrefixIsImplicitlyCreated(): void
+    {
+        $installRoot = '/tmp/' . uniqid('pie-test-install-root-not-existing-', true);
+        $phpBinary   = PhpBinaryPath::fromCurrentProcess();
+
+        $expectedExtensionDir = $installRoot . ini_get('extension_dir');
+        self::assertDirectoryDoesNotExist($expectedExtensionDir);
+
+        self::assertSame($expectedExtensionDir, $phpBinary->extensionPath($installRoot));
+        self::assertDirectoryExists($expectedExtensionDir);
     }
 
     /** @return array<string, array{0: string}> */

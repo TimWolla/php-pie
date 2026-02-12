@@ -30,9 +30,11 @@ use function implode;
 use function in_array;
 use function is_dir;
 use function is_executable;
+use function ltrim;
 use function mkdir;
 use function preg_match;
 use function preg_replace;
+use function rtrim;
 use function sprintf;
 use function strtolower;
 use function trim;
@@ -103,7 +105,7 @@ class PhpBinaryPath
     }
 
     /** @return non-empty-string */
-    public function extensionPath(): string
+    public function extensionPath(string|null $prefixInstallRoot = null): string
     {
         $phpinfo = $this->phpinfo();
 
@@ -115,6 +117,10 @@ class PhpBinaryPath
         ) {
             $extensionPath = trim($matches[1]);
             assert($extensionPath !== '');
+
+            if (self::operatingSystem() !== OperatingSystem::Windows && $prefixInstallRoot !== null && $prefixInstallRoot !== '') {
+                $extensionPath = rtrim($prefixInstallRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($extensionPath, DIRECTORY_SEPARATOR);
+            }
 
             if (file_exists($extensionPath) && is_dir($extensionPath)) {
                 return $extensionPath;

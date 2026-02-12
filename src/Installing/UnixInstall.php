@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Php\Pie\Installing;
 
 use Composer\IO\IOInterface;
+use Composer\Util\Platform as ComposerPlatform;
 use Php\Pie\Downloading\DownloadedPackage;
 use Php\Pie\Downloading\DownloadUrlMethod;
 use Php\Pie\File\BinaryFile;
@@ -37,7 +38,14 @@ final class UnixInstall implements Install
         IOInterface $io,
         bool $attemptToSetupIniFile,
     ): BinaryFile {
-        $targetExtensionPath = $targetPlatform->phpBinaryPath->extensionPath();
+        $env         = [];
+        $installRoot = (string) ComposerPlatform::getEnv('INSTALL_ROOT');
+        if ($installRoot !== '') {
+            $io->write(sprintf('<info>Using INSTALL_ROOT=%s</info>', $installRoot));
+            $env['INSTALL_ROOT'] = $installRoot;
+        }
+
+        $targetExtensionPath = $targetPlatform->phpBinaryPath->extensionPath($installRoot);
 
         $sharedObjectName             = $downloadedPackage->package->extensionName()->name() . '.so';
         $expectedSharedObjectLocation = sprintf(
@@ -93,6 +101,7 @@ final class UnixInstall implements Install
                 $installCommand,
                 $downloadedPackage->extractedSourcePath,
                 self::MAKE_INSTALL_TIMEOUT_SECS,
+                env: $env,
             );
 
             $io->write($makeInstallOutput, verbosity: IOInterface::VERY_VERBOSE);

@@ -30,6 +30,7 @@ final class Process
      *
      * @param list<string>                                                         $command
      * @param callable(SymfonyProcess::ERR|SymfonyProcess::OUT, string): void|null $outputCallback
+     * @param array<string, scalar>|null                                           $env
      *
      * @throws ProcessFailedException
      */
@@ -38,8 +39,9 @@ final class Process
         string|null $workingDirectory = null,
         int|null $timeout = self::NO_TIMEOUT,
         callable|null $outputCallback = null,
+        array|null $env = null,
     ): string {
-        return trim((new SymfonyProcess($command, $workingDirectory, timeout: $timeout))
+        return trim((new SymfonyProcess($command, $workingDirectory, $env, timeout: $timeout))
             ->mustRun($outputCallback)
             ->getOutput());
     }

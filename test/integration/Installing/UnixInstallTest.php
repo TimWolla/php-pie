@@ -6,6 +6,7 @@ namespace Php\PieIntegrationTest\Installing;
 
 use Composer\IO\BufferIO;
 use Composer\Package\CompletePackageInterface;
+use Composer\Util\Filesystem;
 use Composer\Util\Platform;
 use Php\Pie\Building\UnixBuild;
 use Php\Pie\DependencyResolver\Package;
@@ -30,11 +31,13 @@ use function array_map;
 use function array_unshift;
 use function assert;
 use function file_exists;
+use function getenv;
 use function is_executable;
 use function is_writable;
 use function mkdir;
+use function putenv;
 use function rename;
-use function unlink;
+use function uniqid;
 
 use const DIRECTORY_SEPARATOR;
 
@@ -79,6 +82,10 @@ final class UnixInstallTest extends TestCase
     #[DataProvider('phpPathProvider')]
     public function testUnixInstallCanInstallExtensionBuiltFromSource(string $phpConfig): void
     {
+        $installRoot    = '/tmp/' . uniqid('pie-test-install-root-', true);
+        $oldInstallRoot = getenv('INSTALL_ROOT');
+        putenv('INSTALL_ROOT=' . $installRoot);
+
         assert($phpConfig !== '');
         if (Platform::isWindows()) {
             self::markTestSkipped('Unix build test cannot be run on Windows');
@@ -86,7 +93,7 @@ final class UnixInstallTest extends TestCase
 
         $output         = new BufferIO();
         $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromPhpConfigExecutable($phpConfig), null, null);
-        $extensionPath  = $targetPlatform->phpBinaryPath->extensionPath();
+        $extensionPath  = $targetPlatform->phpBinaryPath->extensionPath($installRoot);
 
         $composerPackage = $this->createMock(CompletePackageInterface::class);
         $composerPackage
@@ -135,11 +142,17 @@ final class UnixInstallTest extends TestCase
         (new Process($rmCommand))->mustRun();
         (new Process(['make', 'clean'], $downloadedPackage->extractedSourcePath))->mustRun();
         (new Process(['phpize', '--clean'], $downloadedPackage->extractedSourcePath))->mustRun();
+        (new Filesystem())->remove($installRoot);
+        putenv('INSTALL_ROOT=' . $oldInstallRoot);
     }
 
     #[DataProvider('phpPathProvider')]
     public function testUnixInstallCanInstallPrePackagedBinary(string $phpConfig): void
     {
+        $installRoot    = '/tmp/' . uniqid('pie-test-install-root-', true);
+        $oldInstallRoot = getenv('INSTALL_ROOT');
+        putenv('INSTALL_ROOT=' . $installRoot);
+
         assert($phpConfig !== '');
         if (Platform::isWindows()) {
             self::markTestSkipped('Unix build test cannot be run on Windows');
@@ -147,7 +160,8 @@ final class UnixInstallTest extends TestCase
 
         $output         = new BufferIO();
         $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromPhpConfigExecutable($phpConfig), null, null);
-        $extensionPath  = $targetPlatform->phpBinaryPath->extensionPath();
+        $extensionPath  = $installRoot . $targetPlatform->phpBinaryPath->extensionPath();
+        mkdir($extensionPath, 0777, true);
 
         // First build it (otherwise the test assets would need to have a binary for every test platform...)
         $composerPackage = $this->createMock(CompletePackageInterface::class);
@@ -218,6 +232,8 @@ final class UnixInstallTest extends TestCase
         }
 
         (new Process($rmCommand))->mustRun();
-        unlink($prebuiltBinaryFile->filePath);
+        (new Filesystem())->remove($prebuiltBinaryFile->filePath);
+        (new Filesystem())->remove($installRoot);
+        putenv('INSTALL_ROOT=' . $oldInstallRoot);
     }
 }
