@@ -36,6 +36,7 @@ final class PickBestSetupIniApproachTest extends TestCase
             ThreadSafetyMode::ThreadSafe,
             1,
             null,
+            null,
         );
     }
 

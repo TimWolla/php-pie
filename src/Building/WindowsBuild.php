@@ -7,7 +7,6 @@ namespace Php\Pie\Building;
 use Composer\IO\IOInterface;
 use Php\Pie\Downloading\DownloadedPackage;
 use Php\Pie\File\BinaryFile;
-use Php\Pie\Platform\TargetPhp\PhpizePath;
 use Php\Pie\Platform\TargetPlatform;
 use Php\Pie\Platform\WindowsExtensionAssetName;
 
@@ -22,7 +21,6 @@ final class WindowsBuild implements Build
         TargetPlatform $targetPlatform,
         array $configureOptions,
         IOInterface $io,
-        PhpizePath|null $phpizePath,
     ): BinaryFile {
         $prebuiltDll = WindowsExtensionAssetName::determineDllName($targetPlatform, $downloadedPackage);
 

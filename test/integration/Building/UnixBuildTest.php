@@ -59,10 +59,9 @@ final class UnixBuildTest extends TestCase
         $unixBuilder = new UnixBuild();
         $builtBinary = $unixBuilder->__invoke(
             $downloadedPackage,
-            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null),
+            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null, null),
             ['--enable-pie_test_ext'],
             $output,
-            null,
         );
 
         self::assertNotEmpty($builtBinary);
@@ -116,10 +115,9 @@ final class UnixBuildTest extends TestCase
         try {
             $unixBuilder->__invoke(
                 $downloadedPackage,
-                TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null),
+                TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null, null),
                 ['--enable-pie_test_ext'],
                 $output,
-                null,
             );
         } finally {
             (new Process(['make', 'clean'], $downloadedPackage->extractedSourcePath))->mustRun();
@@ -152,10 +150,9 @@ final class UnixBuildTest extends TestCase
         $unixBuilder = new UnixBuild();
         $builtBinary = $unixBuilder->__invoke(
             $downloadedPackage,
-            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null),
+            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null, null),
             ['--enable-pie_test_ext'],
             $output,
-            null,
         );
 
         self::assertNotEmpty($builtBinary);
@@ -199,7 +196,7 @@ final class UnixBuildTest extends TestCase
             self::TEST_PREBUILT_PATH_INVALID,
         );
 
-        $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null);
+        $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null, null);
         $unixBuilder    = new UnixBuild();
 
         $this->expectException(ExtensionBinaryNotFound::class);
@@ -209,7 +206,6 @@ final class UnixBuildTest extends TestCase
             $targetPlatform,
             ['--enable-pie_test_ext'],
             $output,
-            null,
         );
     }
 
@@ -234,7 +230,7 @@ final class UnixBuildTest extends TestCase
             self::TEST_PREBUILT_PATH_VALID,
         );
 
-        $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null);
+        $targetPlatform = TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null, null);
         $unixBuilder    = new UnixBuild();
 
         $binaryFile = $unixBuilder->__invoke(
@@ -242,7 +238,6 @@ final class UnixBuildTest extends TestCase
             $targetPlatform,
             ['--enable-pie_test_ext'],
             $output,
-            null,
         );
 
         self::assertSame('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', $binaryFile->checksum);
@@ -280,10 +275,9 @@ final class UnixBuildTest extends TestCase
         $unixBuilder = new UnixBuild();
         $unixBuilder->__invoke(
             $downloadedPackage,
-            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null),
+            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null, null),
             ['--enable-pie_test_ext'],
             $output,
-            null,
         );
 
         $outputString = $output->getOutput();
@@ -322,10 +316,9 @@ final class UnixBuildTest extends TestCase
         $unixBuilder = new UnixBuild();
         $unixBuilder->__invoke(
             $downloadedPackage,
-            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null),
+            TargetPlatform::fromPhpBinaryPath(PhpBinaryPath::fromCurrentProcess(), null, null),
             ['--enable-pie_test_ext'],
             $output,
-            null,
         );
 
         $outputString = $output->getOutput();

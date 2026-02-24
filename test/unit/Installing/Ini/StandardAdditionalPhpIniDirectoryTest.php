@@ -64,6 +64,7 @@ final class StandardAdditionalPhpIniDirectoryTest extends TestCase
             ThreadSafetyMode::ThreadSafe,
             1,
             null,
+            null,
         );
 
         $this->downloadedPackage = DownloadedPackage::fromPackageAndExtractedPath(

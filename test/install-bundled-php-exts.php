@@ -28,6 +28,7 @@ $packageNames = array_map(
             TargetPlatform::fromPhpBinaryPath(
                 $phpBinaryPath,
                 null,
+                null,
             ),
         )
             ->getPackages(),

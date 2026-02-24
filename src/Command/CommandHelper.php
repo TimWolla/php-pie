@@ -185,15 +185,6 @@ final class CommandHelper
             throw new InvalidArgumentException('The --with-php-path=/path/to/php cannot be used on non-Windows, use --with-php-config=/path/to/php-config instead.');
         }
 
-        if (Platform::isWindows() && $input->hasOption(self::OPTION_WITH_PHPIZE_PATH)) {
-            /** @var mixed $withPhpizePath */
-            $withPhpizePath = $input->getOption(self::OPTION_WITH_PHPIZE_PATH);
-
-            if (is_string($withPhpizePath) && trim($withPhpizePath) !== '') {
-                throw new InvalidArgumentException('The --with-phpize-path=/path/to/phpize cannot be used on Windows.');
-            }
-        }
-
         if ($specifiedWithPhpConfig) {
             $phpBinaryPath = PhpBinaryPath::fromPhpConfigExecutable($withPhpConfig);
         }
@@ -210,7 +201,19 @@ final class CommandHelper
             }
         }
 
-        $targetPlatform = TargetPlatform::fromPhpBinaryPath($phpBinaryPath, $makeParallelJobs);
+        $phpizePath = null;
+        if ($input->hasOption(self::OPTION_WITH_PHPIZE_PATH)) {
+            $phpizePathOption = $input->getOption(self::OPTION_WITH_PHPIZE_PATH);
+            if (is_string($phpizePathOption) && trim($phpizePathOption) !== '') {
+                if (Platform::isWindows()) {
+                    throw new InvalidArgumentException('The --with-phpize-path=/path/to/phpize cannot be used on Windows.');
+                }
+
+                $phpizePath = new PhpizePath($phpizePathOption);
+            }
+        }
+
+        $targetPlatform = TargetPlatform::fromPhpBinaryPath($phpBinaryPath, $makeParallelJobs, $phpizePath);
 
         if (PiePlatform::isRunningStaticPhp()) {
             $io->write(sprintf('<info>You are running a PIE Static PHP %s build</info>', PHP_VERSION));
@@ -262,18 +265,6 @@ final class CommandHelper
 
         return ! $input->hasOption(self::OPTION_SUPPRESS_BUILD_TOOLS_CHECK)
             || ! $input->getOption(self::OPTION_SUPPRESS_BUILD_TOOLS_CHECK);
-    }
-
-    public static function determinePhpizePathFromInputs(InputInterface $input): PhpizePath|null
-    {
-        if ($input->hasOption(self::OPTION_WITH_PHPIZE_PATH)) {
-            $phpizePathOption = (string) $input->getOption(self::OPTION_WITH_PHPIZE_PATH);
-            if (trim($phpizePathOption) !== '') {
-                return new PhpizePath($phpizePathOption);
-            }
-        }
-
-        return null;
     }
 
     public static function requestedNameAndVersionPair(InputInterface $input): RequestedPackageAndVersion

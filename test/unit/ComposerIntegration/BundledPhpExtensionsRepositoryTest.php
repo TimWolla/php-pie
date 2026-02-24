@@ -101,6 +101,7 @@ final class BundledPhpExtensionsRepositoryTest extends TestCase
                 ThreadSafetyMode::NonThreadSafe,
                 1,
                 null,
+                null,
             ),
         );
 

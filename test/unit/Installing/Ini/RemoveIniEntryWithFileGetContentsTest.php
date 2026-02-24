@@ -104,6 +104,7 @@ final class RemoveIniEntryWithFileGetContentsTest extends TestCase
             ThreadSafetyMode::ThreadSafe,
             1,
             null,
+            null,
         );
 
         $affectedFiles = (new RemoveIniEntryWithFileGetContents())(
@@ -156,6 +157,7 @@ final class RemoveIniEntryWithFileGetContentsTest extends TestCase
             ThreadSafetyMode::ThreadSafe,
             1,
             null,
+            null,
         );
 
         self::assertSame(
@@ -201,6 +203,7 @@ final class RemoveIniEntryWithFileGetContentsTest extends TestCase
             Architecture::x86_64,
             ThreadSafetyMode::ThreadSafe,
             1,
+            null,
             null,
         );
 

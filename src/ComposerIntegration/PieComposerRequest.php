@@ -6,7 +6,6 @@ namespace Php\Pie\ComposerIntegration;
 
 use Composer\IO\IOInterface;
 use Php\Pie\DependencyResolver\RequestedPackageAndVersion;
-use Php\Pie\Platform\TargetPhp\PhpizePath;
 use Php\Pie\Platform\TargetPlatform;
 
 /**
@@ -23,7 +22,6 @@ final class PieComposerRequest
         public readonly RequestedPackageAndVersion $requestedPackage,
         public readonly PieOperation $operation,
         public readonly array $configureOptions,
-        public readonly PhpizePath|null $phpizePath,
         public readonly bool $attemptToSetupIniFile,
     ) {
     }
@@ -42,7 +40,6 @@ final class PieComposerRequest
             new RequestedPackageAndVersion('null/null', null),
             PieOperation::Resolve,
             [],
-            null,
             false,
         );
     }

@@ -45,6 +45,7 @@ final class GithubPackageReleaseAssetsTest extends TestCase
             ThreadSafetyMode::ThreadSafe,
             1,
             WindowsCompiler::VC14,
+            null,
         );
 
         $httpDownloaderResponse = $this->createMock(Response::class);
@@ -111,6 +112,7 @@ final class GithubPackageReleaseAssetsTest extends TestCase
             ThreadSafetyMode::ThreadSafe,
             1,
             WindowsCompiler::VC14,
+            null,
         );
 
         $httpDownloaderResponse = $this->createMock(Response::class);
@@ -172,6 +174,7 @@ final class GithubPackageReleaseAssetsTest extends TestCase
             ThreadSafetyMode::ThreadSafe,
             1,
             WindowsCompiler::VC14,
+            null,
         );
 
         $e = new TransportException('not found', 404);

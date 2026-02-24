@@ -91,7 +91,6 @@ final class UninstallCommand extends Command
                 $requestedPackageAndVersionToRemove,
                 PieOperation::Uninstall,
                 [], // Configure options are not needed for uninstall
-                null,
                 true,
             ),
         );

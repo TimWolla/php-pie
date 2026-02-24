@@ -90,7 +90,6 @@ class CheckAllBuildTools
                 ],
             ),
             new PhpizeBuildToolFinder(
-                'phpize',
                 [
                     PackageManager::Apt->value => 'php-dev',
                     PackageManager::Apk->value => 'php{major}{minor}-dev',
@@ -117,7 +116,7 @@ class CheckAllBuildTools
         $allFound          = true;
 
         foreach ($this->buildTools as $buildTool) {
-            if ($buildTool->check() !== false) {
+            if ($buildTool->check($targetPlatform) !== false) {
                 $io->write('Build tool ' . $buildTool->toolNames() . ' is installed.', verbosity: IOInterface::VERY_VERBOSE);
                 continue;
             }
