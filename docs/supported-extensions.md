@@ -78,6 +78,7 @@ The following extensions have already added support for PIE:
 | pdo_sqlite     | php/pdo_sqlite                                                                                      |
 | pgsql          | php/pgsql                                                                                           |
 | posix          | php/posix                                                                                           |
+| rar            | [php-win-ext/rar](https://packagist.org/packages/php-win-ext/rar)                                   |
 | rdkafka        | [rdkafka/rdkafka](https://packagist.org/packages/rdkafka/rdkafka)                                   |
 | readline       | php/readline                                                                                        |
 | redis          | [phpredis/phpredis](https://packagist.org/packages/phpredis/phpredis)                               |
@@ -95,6 +96,7 @@ The following extensions have already added support for PIE:
 | spi            | [embedded-php/spi](https://packagist.org/packages/embedded-php/spi)                                 |
 | sqlite3        | php/sqlite3                                                                                         |
 | swoole         | [swoole/swoole](https://packagist.org/packages/swoole/swoole)                                       |
+| sync           | [php-win-ext/sync](https://packagist.org/packages/php-win-ext/sync)                                 |
 | sysvmsg        | php/sysvmsg                                                                                         |
 | sysvsem        | php/sysvsem                                                                                         |
 | sysvshm        | php/sysvshm                                                                                         |
@@ -103,6 +105,7 @@ The following extensions have already added support for PIE:
 | translit       | [derickr/translit](https://packagist.org/packages/derickr/translit)                                 |
 | uart           | [embedded-php/uart](https://packagist.org/packages/embedded-php/uart)                               |
 | uuid           | [pecl/uuid](https://packagist.org/packages/pecl/uuid)                                               |
+| varnish        | [php-win-ext/varnish](https://packagist.org/packages/php-win-ext/varnish)                           |
 | vld            | [derickr/vld](https://packagist.org/packages/derickr/vld)                                           |
 | win32service   | [win32service/win32service](https://packagist.org/packages/win32service/win32service)               |
 | xattr          | [pecl/xattr](https://packagist.org/packages/pecl/xattr)                                             |
@@ -257,7 +260,6 @@ The following extensions exist on PECL, but either have not added support for PI
 * quickhash
 * radius
 * raphf
-* rar
 * ref
 * request
 * rnp
@@ -293,7 +295,6 @@ The following extensions exist on PECL, but either have not added support for PI
 * svn
 * swoole_serialize
 * syck
-* sync
 * taint
 * tcc
 * TCLink
@@ -314,7 +315,6 @@ The following extensions exist on PECL, but either have not added support for PI
 * v8
 * v8js
 * var_representation
-* varnish
 * vips
 * wasm
 * weakreference_bc
