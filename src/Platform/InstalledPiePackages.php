@@ -8,6 +8,7 @@ use Composer\Composer;
 use Composer\Package\BasePackage;
 use Composer\Package\CompletePackageInterface;
 use Php\Pie\DependencyResolver\Package;
+use Php\Pie\ExtensionName;
 
 use function array_combine;
 use function array_filter;
@@ -38,7 +39,7 @@ class InstalledPiePackages
                     ->getLocalRepository()
                     ->getPackages(),
                 static function (BasePackage $basePackage): bool {
-                    return $basePackage instanceof CompletePackageInterface;
+                    return $basePackage instanceof CompletePackageInterface && ExtensionName::isValidExtensionName($basePackage->getName());
                 },
             ),
         );

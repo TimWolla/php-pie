@@ -5,17 +5,15 @@ declare(strict_types=1);
 namespace Php\Pie\Command;
 
 use Composer\IO\IOInterface;
-use Composer\Semver\Constraint\Constraint;
-use Php\Pie\ComposerIntegration\PhpBinaryPathBasedPlatformRepository;
 use Php\Pie\ComposerIntegration\PieComposerFactory;
 use Php\Pie\ComposerIntegration\PieComposerRequest;
 use Php\Pie\ComposerIntegration\PieOperation;
 use Php\Pie\DependencyResolver\BundledPhpExtensionRefusal;
 use Php\Pie\DependencyResolver\DependencyResolver;
+use Php\Pie\DependencyResolver\FetchDependencyStatuses;
 use Php\Pie\DependencyResolver\InvalidPackageName;
 use Php\Pie\DependencyResolver\UnableToResolveRequirement;
 use Php\Pie\Installing\InstallForPhpProject\FindMatchingPackages;
-use Php\Pie\Platform\InstalledPiePackages;
 use Php\Pie\Platform\ThreadSafetyMode;
 use Php\Pie\Util\Emoji;
 use Psr\Container\ContainerInterface;
@@ -24,7 +22,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-use function array_key_exists;
 use function count;
 use function in_array;
 use function sprintf;
@@ -38,6 +35,7 @@ final class InfoCommand extends Command
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly DependencyResolver $dependencyResolver,
+        private readonly FetchDependencyStatuses $fetchDependencyStatuses,
         private readonly FindMatchingPackages $findMatchingPackages,
         private readonly IOInterface $io,
     ) {
@@ -127,30 +125,11 @@ final class InfoCommand extends Command
         ));
 
         $this->io->write("\n<options=bold,underscore>Dependencies:</>");
-        $requires = $package->composerPackage()->getRequires();
 
-        if (count($requires) > 0) {
-            /** @var array<string, list<Constraint>> $platformConstraints */
-            $platformConstraints = [];
-            $composerPlatform    = new PhpBinaryPathBasedPlatformRepository($targetPlatform->phpBinaryPath, $composer, new InstalledPiePackages(), null);
-            foreach ($composerPlatform->getPackages() as $platformPackage) {
-                $platformConstraints[$platformPackage->getName()][] = new Constraint('==', $platformPackage->getVersion());
-            }
-
-            foreach ($requires as $requireName => $requireLink) {
-                $packageStatus = sprintf('    %s: %s %%s', $requireName, $requireLink->getConstraint()->getPrettyString());
-                if (! array_key_exists($requireName, $platformConstraints)) {
-                    $this->io->write(sprintf($packageStatus, Emoji::PROHIBITED . ' (not installed)'));
-                    continue;
-                }
-
-                foreach ($platformConstraints[$requireName] as $constraint) {
-                    if ($requireLink->getConstraint()->matches($constraint)) {
-                        $this->io->write(sprintf($packageStatus, Emoji::GREEN_CHECKMARK));
-                    } else {
-                        $this->io->write(sprintf($packageStatus, Emoji::PROHIBITED . ' (your version is ' . $constraint->getVersion() . ')'));
-                    }
-                }
+        $dependencyStatuses = ($this->fetchDependencyStatuses)($targetPlatform, $composer, $package->composerPackage());
+        if (count($dependencyStatuses) > 0) {
+            foreach ($dependencyStatuses as $dependencyStatus) {
+                $this->io->write('    ' . $dependencyStatus->asPrettyString());
             }
         } else {
             $this->io->write('    No dependencies.');
