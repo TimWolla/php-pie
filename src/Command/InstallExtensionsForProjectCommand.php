@@ -12,6 +12,7 @@ use OutOfRangeException;
 use Php\Pie\ComposerIntegration\PieComposerFactory;
 use Php\Pie\ComposerIntegration\PieComposerRequest;
 use Php\Pie\ComposerIntegration\PieJsonEditor;
+use Php\Pie\DependencyResolver\RequestedPackageAndVersion;
 use Php\Pie\ExtensionName;
 use Php\Pie\ExtensionType;
 use Php\Pie\Installing\InstallForPhpProject\ComposerFactoryForProject;
@@ -28,6 +29,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
+use Webmozart\Assert\Assert;
 
 use function array_column;
 use function array_key_exists;
@@ -268,20 +270,26 @@ final class InstallExtensionsForProjectCommand extends Command
                     $selectedPackageName = $matches[0]['name'];
                 }
 
-                $requestInstallConstraint = '';
-                if ($linkRequiresConstraint !== '*') {
-                    $requestInstallConstraint = ':' . $linkRequiresConstraint;
-                }
+                assert($selectedPackageName !== '');
+                $requestedPackageAndVersion = new RequestedPackageAndVersion(
+                    $selectedPackageName,
+                    $linkRequiresConstraint === '*' || $linkRequiresConstraint === '' ? null : $linkRequiresConstraint,
+                );
 
                 try {
                     $this->io->write(
-                        sprintf('Invoking pie install of %s%s', $selectedPackageName, $requestInstallConstraint),
+                        sprintf('Invoking pie install of %s', $requestedPackageAndVersion->prettyNameAndVersion()),
                         verbosity: IOInterface::VERBOSE,
                     );
-                    $this->installSelectedPackage->withPieCli(
-                        $selectedPackageName . $requestInstallConstraint,
-                        $input,
-                        $this->io,
+                    Assert::same(
+                        0,
+                        $this->installSelectedPackage->withSubCommand(
+                            ExtensionName::normaliseFromString($link->getTarget()),
+                            $requestedPackageAndVersion,
+                            $this,
+                            $input,
+                        ),
+                        'Non-zero exit code %s whilst installing ' . $requestedPackageAndVersion->package,
                     );
                 } catch (Throwable $t) {
                     $anyErrorsHappened = true;
