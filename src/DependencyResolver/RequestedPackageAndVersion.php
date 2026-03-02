@@ -27,4 +27,13 @@ final class RequestedPackageAndVersion
             throw InvalidPackageName::fromMissingForwardSlash($this);
         }
     }
+
+    public function prettyNameAndVersion(): string
+    {
+        if ($this->version === null) {
+            return $this->package;
+        }
+
+        return $this->package . ':' . $this->version;
+    }
 }

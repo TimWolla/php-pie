@@ -4,71 +4,37 @@ declare(strict_types=1);
 
 namespace Php\Pie\Installing\InstallForPhpProject;
 
-use Composer\IO\IOInterface;
-use Php\Pie\Command\CommandHelper;
-use Php\Pie\File\FullPathToSelf;
-use Php\Pie\Util\Process;
+use Php\Pie\Command\InvokeSubCommand;
+use Php\Pie\DependencyResolver\RequestedPackageAndVersion;
+use Php\Pie\ExtensionName;
+use Php\Pie\Util\OutputFormatterWithPrefix;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
-
-use function array_filter;
-use function array_walk;
-use function getcwd;
-use function in_array;
-
-use const ARRAY_FILTER_USE_BOTH;
 
 /** @internal This is not public API for PIE, so should not be depended upon unless you accept the risk of BC breaks */
 class InstallSelectedPackage
 {
-    public function __construct(private readonly FullPathToSelf $fullPathToSelf)
-    {
+    public function __construct(
+        private readonly InvokeSubCommand $invokeSubCommand,
+    ) {
     }
 
-    public function withPieCli(string $selectedPackage, InputInterface $input, IOInterface $io): void
-    {
-        $process = [
-            ($this->fullPathToSelf)(),
-            'install',
-            $selectedPackage,
+    public function withSubCommand(
+        ExtensionName $ext,
+        RequestedPackageAndVersion $selectedPackage,
+        Command $command,
+        InputInterface $input,
+    ): int {
+        $params = [
+            'command' => 'install',
+            'requested-package-and-version' => $selectedPackage->prettyNameAndVersion(),
         ];
 
-        $phpPathOptions = array_filter(
-            $input->getOptions(),
-            static function (mixed $value, string|int $key): bool {
-                return $value !== null
-                    && $value !== false
-                    && in_array(
-                        $key,
-                        [
-                            CommandHelper::OPTION_WITH_PHP_CONFIG,
-                            CommandHelper::OPTION_WITH_PHP_PATH,
-                            CommandHelper::OPTION_WITH_PHPIZE_PATH,
-                        ],
-                    );
-            },
-            ARRAY_FILTER_USE_BOTH,
-        );
-
-        array_walk(
-            $phpPathOptions,
-            static function (string $value, string $key) use (&$process): void {
-                $process[] = '--' . $key;
-                $process[] = $value;
-            },
-        );
-
-        Process::run(
-            $process,
-            getcwd(),
-            outputCallback: static function (string $outOrErr, string $message) use ($io): void {
-                if ($outOrErr === \Symfony\Component\Process\Process::ERR) {
-                    $io->writeError('   > ' . $message);
-
-                    return;
-                }
-
-                $io->write('   > ' . $message);
-            },
+        return ($this->invokeSubCommand)(
+            $command,
+            $params,
+            $input,
+            OutputFormatterWithPrefix::newWithPrefix('  ' . $ext->name() . '> '),
         );
     }
 }

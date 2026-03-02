@@ -4,46 +4,46 @@ declare(strict_types=1);
 
 namespace Php\PieUnitTest\Installing\InstallForPhpProject;
 
-use Composer\IO\BufferIO;
-use Composer\Util\Platform;
-use Php\Pie\File\FullPathToSelf;
+use Php\Pie\Command\InvokeSubCommand;
+use Php\Pie\DependencyResolver\RequestedPackageAndVersion;
+use Php\Pie\ExtensionName;
 use Php\Pie\Installing\InstallForPhpProject\InstallSelectedPackage;
+use Php\Pie\Util\OutputFormatterWithPrefix;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputDefinition;
-use Symfony\Component\Console\Input\InputOption;
-
-use function getcwd;
-use function trim;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
 
 #[CoversClass(InstallSelectedPackage::class)]
 final class InstallSelectedPackageTest extends TestCase
 {
-    private const FAKE_HAPPY_SH  = __DIR__ . '/../../../assets/fake-pie-cli/happy.sh';
-    private const FAKE_HAPPY_BAT = __DIR__ . '/../../../assets/fake-pie-cli/happy.bat';
-
-    public function testWithPieCli(): void
+    public function testSubCommandIsInvoked(): void
     {
-        $_SERVER['PHP_SELF'] = Platform::isWindows() ? self::FAKE_HAPPY_BAT : self::FAKE_HAPPY_SH;
+        $command = $this->createMock(Command::class);
+        $input   = $this->createMock(InputInterface::class);
+        $invoker = $this->createMock(InvokeSubCommand::class);
+        $invoker->expects(self::once())
+            ->method('__invoke')
+            ->with(
+                $command,
+                [
+                    'command' => 'install',
+                    'requested-package-and-version' => 'foo/foo:^1.0',
+                ],
+                $input,
+                self::isInstanceOf(OutputFormatterWithPrefix::class),
+            )
+            ->willReturn(0);
 
-        $input = new ArrayInput(
-            ['--with-php-config' => '/path/to/php/config'],
-            new InputDefinition([
-                new InputOption('with-php-config', null, InputOption::VALUE_REQUIRED),
-            ]),
-        );
-        $io    = new BufferIO();
-
-        (new InstallSelectedPackage(new FullPathToSelf(getcwd())))->withPieCli(
-            'foo/bar',
+        $installer = new InstallSelectedPackage($invoker);
+        $installer->withSubCommand(
+            ExtensionName::normaliseFromString('foo'),
+            new RequestedPackageAndVersion(
+                'foo/foo',
+                '^1.0',
+            ),
+            $command,
             $input,
-            $io,
-        );
-
-        self::assertSame(
-            '> Params passed: install foo/bar --with-php-config /path/to/php/config',
-            trim($io->getOutput()),
         );
     }
 }

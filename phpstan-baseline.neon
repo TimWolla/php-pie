@@ -271,18 +271,6 @@ parameters:
 			path: src/Installing/InstallForPhpProject/FindMatchingPackages.php
 
 		-
-			message: '#^Parameter \#2 \$callback of function array_walk expects callable\(array\|float\|int\|string\|true, int\|string\)\: mixed, Closure\(string, string\)\: void given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Installing/InstallForPhpProject/InstallSelectedPackage.php
-
-		-
-			message: '#^Parameter \#2 \$workingDirectory of static method Php\\Pie\\Util\\Process\:\:run\(\) expects string\|null, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Installing/InstallForPhpProject/InstallSelectedPackage.php
-
-		-
 			message: '#^Negated boolean expression is always false\.$#'
 			identifier: booleanNot.alwaysFalse
 			count: 1
@@ -479,12 +467,6 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: test/unit/Installing/Ini/StandardSinglePhpIniTest.php
-
-		-
-			message: '#^Parameter \#1 \$originalCwd of class Php\\Pie\\File\\FullPathToSelf constructor expects string, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: test/unit/Installing/InstallForPhpProject/InstallSelectedPackageTest.php
 
 		-
 			message: '#^Method Php\\PieUnitTest\\SelfManage\\Verify\\FallbackVerificationUsingOpenSslTest\:\:prepareCertificateAndSignature\(\) should return array\{string, string\} but returns array\{mixed, mixed\}\.$#'

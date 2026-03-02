@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Php\Pie\Command;
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -29,6 +30,7 @@ class InvokeSubCommand
         Command $command,
         array $subCommandInput,
         InputInterface $originalCommandInput,
+        OutputFormatter|null $formatter = null,
     ): int {
         $originalSuppliedOptions = array_filter($originalCommandInput->getOptions());
         $installForProjectInput  = new ArrayInput(array_merge(
@@ -42,6 +44,19 @@ class InvokeSubCommand
         $application = $command->getApplication();
         Assert::notNull($application);
 
-        return $application->doRun($installForProjectInput, $this->output);
+        if ($formatter instanceof OutputFormatter) {
+            $oldFormatter = $this->output->getFormatter();
+            $this->output->setFormatter($formatter);
+        }
+
+        try {
+            $result = $application->doRun($installForProjectInput, $this->output);
+        } finally {
+            if ($formatter instanceof OutputFormatter) {
+                $this->output->setFormatter($oldFormatter);
+            }
+        }
+
+        return $result;
     }
 }
