@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Php\PieUnitTest\SelfManage\BuildTools;
+namespace Php\PieUnitTest\Platform;
 
-use Php\Pie\SelfManage\BuildTools\PackageManager;
+use Php\Pie\Platform\PackageManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

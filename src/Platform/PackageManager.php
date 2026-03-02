@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Php\Pie\SelfManage\BuildTools;
+namespace Php\Pie\Platform;
 
 use Php\Pie\File\Sudo;
 use Php\Pie\Platform;

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Php\PieUnitTest\SelfManage\BuildTools;
 
+use Php\Pie\Platform\PackageManager;
 use Php\Pie\Platform\TargetPhp\PhpBinaryPath;
 use Php\Pie\Platform\TargetPlatform;
 use Php\Pie\SelfManage\BuildTools\BinaryBuildToolFinder;
-use Php\Pie\SelfManage\BuildTools\PackageManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
