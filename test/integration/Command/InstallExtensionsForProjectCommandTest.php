@@ -17,6 +17,8 @@ use Php\Pie\ComposerIntegration\MinimalHelperSet;
 use Php\Pie\ComposerIntegration\PieJsonEditor;
 use Php\Pie\ComposerIntegration\QuieterConsoleIO;
 use Php\Pie\Container;
+use Php\Pie\DependencyResolver\RequestedPackageAndVersion;
+use Php\Pie\ExtensionName;
 use Php\Pie\ExtensionType;
 use Php\Pie\Installing\InstallForPhpProject\ComposerFactoryForProject;
 use Php\Pie\Installing\InstallForPhpProject\DetermineExtensionsRequired;
@@ -125,8 +127,15 @@ final class InstallExtensionsForProjectCommandTest extends TestCase
         $this->questionHelper->method('ask')->willReturn('vendor1/foobar: The official foobar implementation');
 
         $this->installSelectedPackage->expects(self::once())
-            ->method('withPieCli')
-            ->with('vendor1/foobar:^1.2');
+            ->method('withSubCommand')
+            ->with(
+                ExtensionName::normaliseFromString('foobar'),
+                new RequestedPackageAndVersion(
+                    'vendor1/foobar',
+                    '^1.2',
+                ),
+            )
+            ->willReturn(0);
 
         $this->commandTester->execute(
             ['--allow-non-interactive-project-install' => true],
@@ -173,7 +182,7 @@ final class InstallExtensionsForProjectCommandTest extends TestCase
         $this->questionHelper->method('ask')->willReturn('vendor1/foobar: The official foobar implementation');
 
         $this->installSelectedPackage->expects(self::never())
-            ->method('withPieCli');
+            ->method('withSubCommand');
 
         $this->commandTester->execute(
             ['--allow-non-interactive-project-install' => true],
