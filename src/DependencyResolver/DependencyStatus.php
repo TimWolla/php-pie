@@ -33,4 +33,9 @@ final class DependencyStatus
 
         return sprintf($statusTemplate, Emoji::GREEN_CHECKMARK);
     }
+
+    public function satisfied(): bool
+    {
+        return $this->installedVersion !== null && $this->requireConstraint->matches($this->installedVersion);
+    }
 }
