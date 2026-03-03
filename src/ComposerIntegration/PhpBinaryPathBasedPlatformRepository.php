@@ -146,6 +146,10 @@ class PhpBinaryPathBasedPlatformRepository extends PlatformRepository
         $this->addPackage($lib);
     }
 
+    /**
+     * Instructions for PIE to install these libraries, if they are missing, should be added
+     * into {@see \Php\Pie\DependencyResolver\DependencyInstaller\PrescanSystemDependencies}
+     */
     private function addLibrariesUsingPkgConfig(): void
     {
         $this->detectLibraryWithPkgConfig('curl', 'libcurl');

@@ -39,6 +39,7 @@ use Php\Pie\Installing\Uninstall;
 use Php\Pie\Installing\UninstallUsingUnlink;
 use Php\Pie\Installing\UnixInstall;
 use Php\Pie\Installing\WindowsInstall;
+use Php\Pie\Platform\PackageManager;
 use Php\Pie\SelfManage\BuildTools\CheckAllBuildTools;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\ConsoleEvents;
@@ -208,6 +209,13 @@ final class Container
         $container->alias(UninstallUsingUnlink::class, Uninstall::class);
 
         $container->alias(Ini\RemoveIniEntryWithFileGetContents::class, Ini\RemoveIniEntry::class);
+
+        $container->singleton(
+            PackageManager::class,
+            static function (): PackageManager|null {
+                return PackageManager::detect();
+            },
+        );
 
         return $container;
     }
