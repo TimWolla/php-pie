@@ -7,6 +7,7 @@ namespace Php\Pie\Platform;
 use Composer\Composer;
 use Composer\Package\BasePackage;
 use Composer\Package\CompletePackageInterface;
+use InvalidArgumentException;
 use Php\Pie\DependencyResolver\Package;
 use Php\Pie\ExtensionName;
 
@@ -39,7 +40,13 @@ class InstalledPiePackages
                     ->getLocalRepository()
                     ->getPackages(),
                 static function (BasePackage $basePackage): bool {
-                    return $basePackage instanceof CompletePackageInterface && ExtensionName::isValidExtensionName($basePackage->getName());
+                    try {
+                        ExtensionName::determineFromComposerPackage($basePackage);
+                    } catch (InvalidArgumentException) {
+                        return false;
+                    }
+
+                    return $basePackage instanceof CompletePackageInterface;
                 },
             ),
         );
