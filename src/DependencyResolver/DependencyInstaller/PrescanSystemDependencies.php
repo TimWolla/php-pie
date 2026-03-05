@@ -98,7 +98,7 @@ class PrescanSystemDependencies
 
         if (! array_key_exists($depName, $this->systemDependenciesDefinition->definition)) {
             $this->io->writeError(
-                sprintf('Could not automatically install %s, as PIE does not have the package manager definition.', $unmetDependency->name),
+                sprintf('Could not automatically install "%s", as PIE does not have the package manager definition.', $unmetDependency->name),
                 verbosity: IOInterface::VERBOSE,
             );
 
