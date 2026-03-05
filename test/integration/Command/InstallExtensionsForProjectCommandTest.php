@@ -58,17 +58,15 @@ final class InstallExtensionsForProjectCommandTest extends TestCase
         $container->method('get')->willReturnCallback(
             /** @param class-string $service */
             function (string $service): mixed {
-                switch ($service) {
-                    case QuieterConsoleIO::class:
-                        return new QuieterConsoleIO(
-                            new ArrayInput([]),
-                            new BufferedOutput(),
-                            new MinimalHelperSet(['question' => new QuestionHelper()]),
-                        );
-
-                    default:
-                        return $this->createMock($service);
-                }
+                /** @var class-string $service */
+                return match ($service) {
+                    QuieterConsoleIO::class => new QuieterConsoleIO(
+                        new ArrayInput([]),
+                        new BufferedOutput(),
+                        new MinimalHelperSet(['question' => new QuestionHelper()]),
+                    ),
+                    default => $this->createMock($service),
+                };
             },
         );
 

@@ -43,7 +43,6 @@ final class FetchDependencyStatusesTest extends TestCase
             $package,
         );
 
-        self::assertIsList($deps);
         self::assertCount(3, $deps);
 
         self::assertSame('ext-core: == 8.4.17.0 ✅', $deps[0]->asPrettyString());

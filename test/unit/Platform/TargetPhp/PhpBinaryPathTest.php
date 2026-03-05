@@ -400,10 +400,8 @@ final class PhpBinaryPathTest extends TestCase
         $php = PhpBinaryPath::fromPhpBinaryPath($phpPath);
         self::assertArrayHasKey('Core', $php->extensions());
         self::assertNotEmpty($php->extensionPath());
-        self::assertInstanceOf(OperatingSystem::class, $php->operatingSystem());
         self::assertNotEmpty($php->version());
         self::assertNotEmpty($php->majorMinorVersion());
-        self::assertInstanceOf(Architecture::class, $php->machineType());
         self::assertGreaterThan(0, $php->phpIntSize());
         self::assertNotEmpty($php->phpinfo());
     }
