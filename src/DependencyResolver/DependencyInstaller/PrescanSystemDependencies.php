@@ -27,33 +27,13 @@ use function str_replace;
 /** @internal This is not public API for PIE, so should not be depended upon unless you accept the risk of BC breaks */
 class PrescanSystemDependencies
 {
-    /** @var array<non-empty-string, array<non-empty-string, non-empty-string>> */
-    private readonly array $libraries;
-
     public function __construct(
         private readonly DependencyResolver $dependencyResolver,
         private readonly FetchDependencyStatuses $fetchDependencyStatuses,
-        private readonly IOInterface $io,
+        private readonly SystemDependenciesDefinition $systemDependenciesDefinition,
         private readonly PackageManager|null $packageManager,
+        private readonly IOInterface $io,
     ) {
-        /**
-         * Checks for the existence of these libraries should be added into
-         * {@see \Php\Pie\ComposerIntegration\PhpBinaryPathBasedPlatformRepository::addLibrariesUsingPkgConfig()}
-         */
-        $this->libraries = [
-            'sodium' => [
-                PackageManager::Apt->value => 'libsodium-dev',
-                PackageManager::Apk->value => 'libsodium-dev',
-                PackageManager::Dnf->value => 'pkgconfig(libsodium)',
-                PackageManager::Yum->value => 'pkgconfig(libsodium)',
-            ],
-            'jpeg' => [
-                PackageManager::Apt->value => 'libjpeg-dev',
-                PackageManager::Apk->value => 'libjpeg-turbo-dev',
-                PackageManager::Dnf->value => 'pkgconfig(libjpeg)',
-                PackageManager::Yum->value => 'pkgconfig(libjpeg)',
-            ],
-        ];
     }
 
     public function __invoke(Composer $composer, TargetPlatform $targetPlatform, RequestedPackageAndVersion $requestedNameAndVersion): void
@@ -116,7 +96,7 @@ class PrescanSystemDependencies
     {
         $depName = str_replace('lib-', '', $unmetDependency->name);
 
-        if (! array_key_exists($depName, $this->libraries)) {
+        if (! array_key_exists($depName, $this->systemDependenciesDefinition->definition)) {
             $this->io->writeError(
                 sprintf('Could not automatically install %s, as PIE does not have the package manager definition.', $unmetDependency->name),
                 verbosity: IOInterface::VERBOSE,
@@ -125,7 +105,7 @@ class PrescanSystemDependencies
             return null;
         }
 
-        if (! array_key_exists($packageManager->value, $this->libraries[$depName])) {
+        if (! array_key_exists($packageManager->value, $this->systemDependenciesDefinition->definition[$depName])) {
             $this->io->writeError(
                 sprintf('Could not automatically install "%s", as PIE does not have a definition for "%s"', $unmetDependency->name, $packageManager->value),
                 verbosity: IOInterface::VERBOSE,
@@ -134,7 +114,7 @@ class PrescanSystemDependencies
             return null;
         }
 
-        $packageManagerPackage = $this->libraries[$depName][$packageManager->value];
+        $packageManagerPackage = $this->systemDependenciesDefinition->definition[$depName][$packageManager->value];
 
         // Note: ideally, we should also parse the version constraint. This initial iteration will ignore that, to be improved later.
         $this->io->write(

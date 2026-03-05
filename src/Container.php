@@ -28,6 +28,7 @@ use Php\Pie\Command\ShowCommand;
 use Php\Pie\Command\UninstallCommand;
 use Php\Pie\ComposerIntegration\MinimalHelperSet;
 use Php\Pie\ComposerIntegration\QuieterConsoleIO;
+use Php\Pie\DependencyResolver\DependencyInstaller\SystemDependenciesDefinition;
 use Php\Pie\DependencyResolver\DependencyResolver;
 use Php\Pie\DependencyResolver\ResolveDependencyWithComposer;
 use Php\Pie\Downloading\GithubPackageReleaseAssets;
@@ -214,6 +215,13 @@ final class Container
             PackageManager::class,
             static function (): PackageManager|null {
                 return PackageManager::detect();
+            },
+        );
+
+        $container->singleton(
+            SystemDependenciesDefinition::class,
+            static function (): SystemDependenciesDefinition {
+                return SystemDependenciesDefinition::default();
             },
         );
 

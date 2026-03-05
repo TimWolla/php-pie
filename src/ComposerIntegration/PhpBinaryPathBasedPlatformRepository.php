@@ -148,7 +148,7 @@ class PhpBinaryPathBasedPlatformRepository extends PlatformRepository
 
     /**
      * Instructions for PIE to install these libraries, if they are missing, should be added
-     * into {@see \Php\Pie\DependencyResolver\DependencyInstaller\PrescanSystemDependencies}
+     * into {@see \Php\Pie\DependencyResolver\DependencyInstaller\SystemDependenciesDefinition::default()}
      */
     private function addLibrariesUsingPkgConfig(): void
     {
