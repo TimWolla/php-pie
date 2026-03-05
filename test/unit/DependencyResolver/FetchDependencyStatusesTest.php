@@ -45,8 +45,8 @@ final class FetchDependencyStatusesTest extends TestCase
 
         self::assertCount(3, $deps);
 
-        self::assertSame('ext-core: == 8.4.17.0 ✅', $deps[0]->asPrettyString());
+        self::assertSame('ext-core: == ' . $php->version() . '.0 ✅', $deps[0]->asPrettyString());
         self::assertSame('ext-nonsense_extension: == * 🚫 (not installed)', $deps[1]->asPrettyString());
-        self::assertSame('ext-standard: < 1.0.0.0 🚫 (your version is 8.4.17.0)', $deps[2]->asPrettyString());
+        self::assertSame('ext-standard: < 1.0.0.0 🚫 (your version is ' . $php->version() . '.0)', $deps[2]->asPrettyString());
     }
 }

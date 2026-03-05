@@ -47,14 +47,14 @@ RUN mkdir -p /opt/php \
     && make install
 ENV PATH="$PATH:/opt/php/bin"
 COPY --from=build_pie_phar /app/pie.phar /usr/local/bin/pie
-RUN pie install -v php/sodium
+RUN pie install -v --auto-install-system-dependencies php/sodium
 
 FROM alpine AS test_pie_installs_system_deps_on_alpine
 RUN apk add php php-phar php-mbstring php-iconv php-openssl bzip2-dev libbz2 build-base autoconf bison re2c libtool php84-dev
 COPY --from=build_pie_phar /app/pie.phar /usr/local/bin/pie
-RUN pie install -v php/sodium
+RUN pie install -v --auto-install-system-dependencies php/sodium
 
 FROM fedora AS test_pie_installs_system_deps_on_fedora
 RUN dnf install -y php php-pecl-zip unzip gcc make autoconf bison re2c libtool php-devel
 COPY --from=build_pie_phar /app/pie.phar /usr/local/bin/pie
-RUN pie install -v php/sodium
+RUN pie install -v --auto-install-system-dependencies php/sodium

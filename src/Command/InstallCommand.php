@@ -105,14 +105,20 @@ final class InstallCommand extends Command
             ),
         );
 
-        // @todo flag to disable this check
-        try {
-            ($this->prescanSystemDependencies)($composer, $targetPlatform, $requestedNameAndVersion);
-        } catch (Throwable $anything) {
-            $this->io->writeError(
-                '<comment>Skipping system dependency pre-scan due to exception:</comment> ' . $anything->getMessage(),
-                verbosity: IOInterface::VERBOSE,
-            );
+        if (CommandHelper::shouldCheckSystemDependencies($input)) {
+            try {
+                ($this->prescanSystemDependencies)(
+                    $composer,
+                    $targetPlatform,
+                    $requestedNameAndVersion,
+                    CommandHelper::autoInstallSystemDependencies($input),
+                );
+            } catch (Throwable $anything) {
+                $this->io->writeError(
+                    '<comment>Skipping system dependency pre-scan due to exception:</comment> ' . $anything->getMessage(),
+                    verbosity: IOInterface::VERBOSE,
+                );
+            }
         }
 
         try {

@@ -53,7 +53,7 @@ final class PrescanSystemDependenciesTest extends TestCase
             $this->io,
         );
 
-        ($scanner)($this->composer, $this->targetPlatform, new RequestedPackageAndVersion('foo/foo', null));
+        ($scanner)($this->composer, $this->targetPlatform, new RequestedPackageAndVersion('foo/foo', null), true);
 
         self::assertStringContainsString(
             'Skipping pre-scan of system dependencies, as a supported package manager could not be detected.',
@@ -89,7 +89,7 @@ final class PrescanSystemDependenciesTest extends TestCase
                 new DependencyStatus('lib-bar', $versionParser->parseConstraints('^2.0'), new Constraint('=', '2.5.1.0')),
             ]);
 
-        ($scanner)($this->composer, $this->targetPlatform, $request);
+        ($scanner)($this->composer, $this->targetPlatform, $request, true);
 
         self::assertStringContainsString(
             'All system dependencies are already installed.',
@@ -124,7 +124,7 @@ final class PrescanSystemDependenciesTest extends TestCase
                 new DependencyStatus('lib-bar', $versionParser->parseConstraints('^1.0'), null),
             ]);
 
-        ($scanner)($this->composer, $this->targetPlatform, $request);
+        ($scanner)($this->composer, $this->targetPlatform, $request, true);
 
         $outputString = $this->io->getOutput();
         self::assertStringContainsString('Extension foo/foo has unmet dependencies: lib-bar', $outputString);
@@ -164,7 +164,7 @@ final class PrescanSystemDependenciesTest extends TestCase
                 new DependencyStatus('lib-bar', $versionParser->parseConstraints('^1.0'), null),
             ]);
 
-        ($scanner)($this->composer, $this->targetPlatform, $request);
+        ($scanner)($this->composer, $this->targetPlatform, $request, true);
 
         $outputString = $this->io->getOutput();
         self::assertStringContainsString('Extension foo/foo has unmet dependencies: lib-bar', $outputString);
@@ -204,7 +204,7 @@ final class PrescanSystemDependenciesTest extends TestCase
                 new DependencyStatus('lib-bar', $versionParser->parseConstraints('^1.0'), null),
             ]);
 
-        ($scanner)($this->composer, $this->targetPlatform, $request);
+        ($scanner)($this->composer, $this->targetPlatform, $request, true);
 
         $outputString = $this->io->getOutput();
         self::assertStringContainsString('Extension foo/foo has unmet dependencies: lib-bar', $outputString);
@@ -244,11 +244,54 @@ final class PrescanSystemDependenciesTest extends TestCase
                 new DependencyStatus('lib-bar', $versionParser->parseConstraints('^1.0'), null),
             ]);
 
-        ($scanner)($this->composer, $this->targetPlatform, $request);
+        ($scanner)($this->composer, $this->targetPlatform, $request, true);
 
         $outputString = $this->io->getOutput();
         self::assertStringContainsString('Extension foo/foo has unmet dependencies: lib-bar', $outputString);
         self::assertStringContainsString('Adding test package libbar-dev to be installed for lib-bar', $outputString);
-        self::assertStringContainsString('Installing missing system dependencies: echo "fake installing libbar-dev"', $outputString);
+        self::assertStringContainsString('Need to install missing system dependencies: echo "fake installing libbar-dev"', $outputString);
+    }
+
+    public function testMissingDependenciesAreNotInstalledWhenShouldNotAutoInstallAndNonInteractive(): void
+    {
+        $scanner = new PrescanSystemDependencies(
+            $this->dependencyResolver,
+            $this->fetchDependencyStatuses,
+            new SystemDependenciesDefinition([
+                'bar' => [
+                    PackageManager::Apt->value => 'libbar-dev',
+                    PackageManager::Apk->value => 'libbar-dev',
+                    PackageManager::Test->value => 'libbar-dev',
+                ],
+            ]),
+            PackageManager::Test,
+            $this->io,
+        );
+
+        $request         = new RequestedPackageAndVersion('foo/foo', null);
+        $composerPackage = new CompletePackage('foo/foo', '1.0.0.0', '1.0.0');
+        $piePackage      = Package::fromComposerCompletePackage($composerPackage);
+        $this->dependencyResolver->expects(self::once())
+            ->method('__invoke')
+            ->with($this->composer, $this->targetPlatform, $request, true)
+            ->willReturn($piePackage);
+
+        $versionParser = new VersionParser();
+
+        $this->fetchDependencyStatuses->expects(self::once())
+            ->method('__invoke')
+            ->with($this->targetPlatform, $this->composer, $composerPackage)
+            ->willReturn([
+                new DependencyStatus('lib-bar', $versionParser->parseConstraints('^1.0'), null),
+            ]);
+
+        ($scanner)($this->composer, $this->targetPlatform, $request, false);
+
+        $outputString = $this->io->getOutput();
+        self::assertStringContainsString('Extension foo/foo has unmet dependencies: lib-bar', $outputString);
+        self::assertStringContainsString('Adding test package libbar-dev to be installed for lib-bar', $outputString);
+        self::assertStringContainsString('You are not running in interactive mode, and you did not provide the --auto-install-system-dependencies flag.', $outputString);
+        self::assertStringContainsString('You may need to run: echo "fake installing libbar-dev"', $outputString);
+        self::assertStringNotContainsString('Need to install missing system dependencies', $outputString);
     }
 }

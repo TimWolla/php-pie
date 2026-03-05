@@ -36,8 +36,12 @@ class PrescanSystemDependencies
     ) {
     }
 
-    public function __invoke(Composer $composer, TargetPlatform $targetPlatform, RequestedPackageAndVersion $requestedNameAndVersion): void
-    {
+    public function __invoke(
+        Composer $composer,
+        TargetPlatform $targetPlatform,
+        RequestedPackageAndVersion $requestedNameAndVersion,
+        bool $autoInstallIfMissing,
+    ): void {
         if ($this->packageManager === null) {
             $this->io->writeError('<comment>Skipping pre-scan of system dependencies, as a supported package manager could not be detected.</comment>', verbosity: IOInterface::VERBOSE);
 
@@ -83,10 +87,29 @@ class PrescanSystemDependencies
         }
 
         $proposedInstallCommand = implode(' ', $this->packageManager->installCommand($packageManagerPackages));
-        $this->io->write(sprintf('<info>Installing missing system dependencies:</info> %s', $proposedInstallCommand));
+
+        if (! $this->io->isInteractive() && ! $autoInstallIfMissing) {
+            $this->io->writeError('<warning>You are not running in interactive mode, and you did not provide the --auto-install-system-dependencies flag.');
+            $this->io->writeError('You may need to run: ' . $proposedInstallCommand . '</warning>');
+            $this->io->writeError('');
+
+            return;
+        }
+
+        $this->io->write(sprintf('<info>Need to install missing system dependencies:</info> %s', $proposedInstallCommand));
+
+        if ($this->io->isInteractive() && ! $autoInstallIfMissing) {
+            if (! $this->io->askConfirmation('<question>Would you like to install them now?</question>', false)) {
+                $this->io->write('<comment>Ok, but things might not work. Just so you know.</comment>');
+
+                return;
+            }
+        }
 
         try {
             $this->packageManager->install($packageManagerPackages);
+
+            $this->io->write('<info>Missing system dependencies have been installed.</info>');
         } catch (Throwable $anything) {
             $this->io->writeError(sprintf('<info>Failed to install missing system dependencies:</info> %s', $anything->getMessage()));
         }

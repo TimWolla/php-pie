@@ -63,6 +63,8 @@ final class CommandHelper
     private const OPTION_NO_CACHE                             = 'no-cache';
     private const OPTION_AUTO_INSTALL_BUILD_TOOLS             = 'auto-install-build-tools';
     private const OPTION_SUPPRESS_BUILD_TOOLS_CHECK           = 'no-build-tools-check';
+    private const OPTION_AUTO_INSTALL_SYSTEM_DEPENDENCIES     = 'auto-install-system-dependencies';
+    private const OPTION_SUPPRESS_SYSTEM_DEPENDENCIES_CHECK   = 'no-system-dependencies-check';
 
     private function __construct()
     {
@@ -152,6 +154,19 @@ final class CommandHelper
             null,
             InputOption::VALUE_NONE,
             'Do not perform the check to see if build tools are present on the system.',
+        );
+
+        $command->addOption(
+            self::OPTION_AUTO_INSTALL_SYSTEM_DEPENDENCIES,
+            null,
+            InputOption::VALUE_NONE,
+            'If system dependencies missing, automatically install them, instead of prompting.',
+        );
+        $command->addOption(
+            self::OPTION_SUPPRESS_SYSTEM_DEPENDENCIES_CHECK,
+            null,
+            InputOption::VALUE_NONE,
+            'Do not perform the check to see if system dependencies are present on the system.',
         );
 
         /**
@@ -265,6 +280,22 @@ final class CommandHelper
 
         return ! $input->hasOption(self::OPTION_SUPPRESS_BUILD_TOOLS_CHECK)
             || ! $input->getOption(self::OPTION_SUPPRESS_BUILD_TOOLS_CHECK);
+    }
+
+    public static function autoInstallSystemDependencies(InputInterface $input): bool
+    {
+        return $input->hasOption(self::OPTION_AUTO_INSTALL_SYSTEM_DEPENDENCIES)
+            && $input->getOption(self::OPTION_AUTO_INSTALL_SYSTEM_DEPENDENCIES);
+    }
+
+    public static function shouldCheckSystemDependencies(InputInterface $input): bool
+    {
+        if (Platform::isWindows()) {
+            return false;
+        }
+
+        return ! $input->hasOption(self::OPTION_SUPPRESS_SYSTEM_DEPENDENCIES_CHECK)
+            || ! $input->getOption(self::OPTION_SUPPRESS_SYSTEM_DEPENDENCIES_CHECK);
     }
 
     public static function requestedNameAndVersionPair(InputInterface $input): RequestedPackageAndVersion
