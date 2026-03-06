@@ -289,6 +289,12 @@ parameters:
 			path: src/Platform.php
 
 		-
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(Composer\\Package\\BasePackage\)\: mixed\)\|null, Closure\(Composer\\Package\\CompletePackageInterface\)\: Php\\Pie\\DependencyResolver\\Package given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Platform/InstalledPiePackages.php
+
+		-
 			message: '#^Call to function array_key_exists\(\) with 1 and array\{non\-falsy\-string, non\-empty\-string, non\-empty\-string\} will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -353,18 +359,6 @@ parameters:
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: test/integration/Command/InstallCommandTest.php
-
-		-
-			message: '#^Parameter \#1 \$originalClassName of method PHPUnit\\Framework\\TestCase\:\:createMock\(\) expects class\-string\<object\>, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: test/integration/Command/InstallExtensionsForProjectCommandTest.php
-
-		-
-			message: '#^Unable to resolve the template type RealInstanceType in call to method PHPUnit\\Framework\\TestCase\:\:createMock\(\)$#'
-			identifier: argument.templateType
-			count: 1
-			path: test/integration/Command/InstallExtensionsForProjectCommandTest.php
 
 		-
 			message: '#^Call to function assert\(\) with true will always evaluate to true\.$#'

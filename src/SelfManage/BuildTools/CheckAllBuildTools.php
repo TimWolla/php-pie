@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Php\Pie\SelfManage\BuildTools;
 
 use Composer\IO\IOInterface;
+use Php\Pie\Platform\PackageManager;
 use Php\Pie\Platform\TargetPlatform;
 use Throwable;
 

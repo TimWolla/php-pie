@@ -2,11 +2,12 @@
 
 ## What is PIE?
 
-PIE is a new installer for PHP extensions, intended to eventually replace PECL.
-It is distributed as a [PHAR](https://www.php.net/manual/en/intro.phar.php),
-just like Composer, and works in a similar way to Composer, but it installs PHP
-extensions (PHP Modules or Zend Extensions) to your PHP installation, rather
-than pulling PHP packages into your project or library.
+PIE is the official installer for PHP extensions, which replaces
+[PECL](https://pecl.php.net/) (which is now deprecated). PIE is distributed as a
+[PHAR](https://www.php.net/manual/en/intro.phar.php), just like Composer, and
+works in a similar way to Composer, but it installs PHP extensions (PHP Modules
+or Zend Extensions) to your PHP installation, rather than pulling PHP packages
+into your project or library.
 
 # Using PIE - what do I need to get started?
 
@@ -15,12 +16,8 @@ than pulling PHP packages into your project or library.
 You will need PHP 8.1 or newer to run PIE, but PIE can install an extension to
 any other installed PHP version.
 
-On Linux, you will need a build toolchain installed. On Debian/Ubuntu type
-systems, you could run something like:
-
-```shell
-sudo apt install gcc make autoconf libtool bison re2c pkg-config php-dev
-```
+On Linux/OSX, if any build tools needed are missing, PIE will ask if you would
+like to automatically install them first (this is a new feature in 1.4.0).
 
 On Windows, you do not need any build toolchain installed, since PHP extensions
 for Windows are distributed as pre-compiled packages containing the extension
@@ -38,7 +35,9 @@ Further installation details can be found in the [usage](./docs/usage.md) docs.
 This documentation assumes you have moved `pie.phar` into your `$PATH`, e.g.
 `/usr/local/bin/pie` on non-Windows systems or created an alias in your shell RC file.
 
-## Installing a single extension using PIE
+## Using PIE
+
+### Installing a single extension using PIE
 
 You can install an extension using the `install` command. For example, to
 install the `example_pie_extension` extension, you would run:
@@ -57,7 +56,7 @@ You must now add "extension=example_pie_extension" to your php.ini
 $
 ```
 
-## Installing all extensions for a PHP project
+### Installing all extensions for a PHP project
 
 When in your PHP project, you can install any missing top-level extensions:
 
@@ -87,6 +86,12 @@ The following packages may be suitable, which would you like to install:
 Finished checking extensions.
 ```
 
+> [!TIP]
+> If you are running PIE in a non-interactive shell (for example, CI, a
+> container), pass the `--allow-non-interactive-project-install` flag to run
+> this command. It may still fail if more than one PIE package provides a
+> particular extension.
+
 ## Extensions that support PIE
 
 A list of extensions that support PIE can be found on
@@ -105,6 +110,6 @@ A list of extensions that support PIE can be found on
 If you are an extension maintainer wanting to add PIE support to your extension,
 please read [extension-maintainers](./docs/extension-maintainers.md).
 
-## More documentation...
+# More documentation...
 
 The full documentation for PIE can be found in [usage](./docs/usage.md) docs.

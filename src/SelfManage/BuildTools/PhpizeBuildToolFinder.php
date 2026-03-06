@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Php\Pie\SelfManage\BuildTools;
 
+use Php\Pie\Platform\PackageManager;
 use Php\Pie\Platform\TargetPhp\PhpizePath;
 use Php\Pie\Platform\TargetPlatform;
 use RuntimeException;

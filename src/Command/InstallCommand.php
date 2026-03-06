@@ -11,18 +11,20 @@ use Php\Pie\ComposerIntegration\PieComposerFactory;
 use Php\Pie\ComposerIntegration\PieComposerRequest;
 use Php\Pie\ComposerIntegration\PieOperation;
 use Php\Pie\DependencyResolver\BundledPhpExtensionRefusal;
+use Php\Pie\DependencyResolver\DependencyInstaller\PrescanSystemDependencies;
 use Php\Pie\DependencyResolver\DependencyResolver;
 use Php\Pie\DependencyResolver\InvalidPackageName;
 use Php\Pie\DependencyResolver\UnableToResolveRequirement;
 use Php\Pie\Installing\InstallForPhpProject\FindMatchingPackages;
+use Php\Pie\Platform\PackageManager;
 use Php\Pie\Platform\TargetPlatform;
 use Php\Pie\SelfManage\BuildTools\CheckAllBuildTools;
-use Php\Pie\SelfManage\BuildTools\PackageManager;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 
 use function sprintf;
 
@@ -35,6 +37,7 @@ final class InstallCommand extends Command
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly DependencyResolver $dependencyResolver,
+        private readonly PrescanSystemDependencies $prescanSystemDependencies,
         private readonly ComposerIntegrationHandler $composerIntegrationHandler,
         private readonly InvokeSubCommand $invokeSubCommand,
         private readonly FindMatchingPackages $findMatchingPackages,
@@ -101,6 +104,22 @@ final class InstallCommand extends Command
                 false, // setting up INI not needed for resolve step
             ),
         );
+
+        if (CommandHelper::shouldCheckSystemDependencies($input)) {
+            try {
+                ($this->prescanSystemDependencies)(
+                    $composer,
+                    $targetPlatform,
+                    $requestedNameAndVersion,
+                    CommandHelper::autoInstallSystemDependencies($input),
+                );
+            } catch (Throwable $anything) {
+                $this->io->writeError(
+                    '<comment>Skipping system dependency pre-scan due to exception:</comment> ' . $anything->getMessage(),
+                    verbosity: IOInterface::VERBOSE,
+                );
+            }
+        }
 
         try {
             $package = ($this->dependencyResolver)(

@@ -281,6 +281,31 @@ pie install example/some-extension --with-some-library-name=/path/to/the/lib
 pie install example/some-extension --with-some-library-name=/path/to/the/lib --enable-some-functionality
 ```
 
+### Build tools check
+
+PIE will attempt to check the presence of build tools (such as gcc, make, etc.)
+before running. If any are missing, an interactive prompt will ask if you would
+like to install the missing tools. If you are running in non-interactive mode
+(for example, in a CI pipeline, container build, etc), PIE will **not**
+install these tools automatically. If you would like to install the build tools
+in a non-interactive terminal, pass the `--auto-install-build-tools` and the
+prompt will be skipped.
+
+To skip the build tools check entirely, pass the `--no-build-tools-check` flag.
+
+### System library dependencies check
+
+PIE will attempt to check the presence of system library dependencies before
+installing an extension. If any are missing, an interactive prompt will ask if
+you would like to install the missing tools. If you are running in
+non-interactive mode (for example, in a CI pipeline, container build, etc), PIE
+will **not** install these dependencies automatically. If you would like to
+install the system dependencies in a non-interactive terminal, pass the
+`--auto-install-system-dependencies` and the prompt will be skipped.
+
+To skip the dependencies check entirely, pass the
+`--no-system-dependencies-check` flag.
+
 ### Configuring the INI file
 
 PIE will automatically try to enable the extension by adding `extension=...` or
