@@ -345,11 +345,16 @@ The list of accepted OS families: "windows", "bsd", "darwin", "solaris", "linux"
 
 #### Extension dependencies
 
-Extension authors may define some dependencies in `require`, but practically,
+Extension authors may define some dependencies in `require`, but typically,
 most extensions would not need to define dependencies, except for the PHP
-versions supported by the extension. Dependencies on other extensions may be
-defined, for example `ext-json`. However, dependencies on a regular PHP package
-(such as `monolog/monolog`) SHOULD NOT be specified in your `require` section.
+versions supported by the extension, and system libraries.
+
+Dependencies on a regular PHP package (such as `monolog/monolog`) SHOULD NOT be
+specified in your extension's `require` section.
+
+##### Dependencies on other extensions
+
+Dependencies on other extensions may be defined, for example `ext-json`.
 
 It is worth noting that if your extension does define a dependency on another
 dependency, and this is not available, someone installing your extension would
@@ -359,6 +364,47 @@ receive a message such as:
 Cannot use myvendor/myextension's latest version 1.2.3 as it requires
 ext-something * which is missing from your platform.
 ```
+
+##### System Library Dependencies
+
+In PIE 1.4.0, the ability for extension authors to define system library
+dependencies was added, and in some cases, automatically install them.
+
+The following libraries are supported at the moment. **If you would like to add
+a library, please [open a discussion](https://github.com/php/pie/discussions)
+in the first instance.** Don't just open a PR without discussing first please!
+
+We are adding libraries and improving this feature over time. If the automatic
+install of a system dependency that is supported below in your package manager
+is NOT working, then please [report a bug](https://github.com/php/pie/issues).
+
+| Library       | Checked by PIE | Auto-installs in   |
+|---------------|----------------|--------------------|
+| lib-curl      | ✅              | apt, apk, dnf, yum |
+| lib-enchant   | ✅              | ❌                  |
+| lib-enchant-2 | ✅              | ❌                  |
+| lib-sodium    | ✅              | apt, apk, dnf, yum |
+| lib-ffi       | ✅              | apt, apk, dnf, yum |
+| lib-xslt      | ✅              | apt, apk, dnf, yum |
+| lib-zip       | ✅              | apt, apk, dnf, yum |
+| lib-png       | ✅              | ❌                  |
+| lib-avif      | ✅              | ❌                  |
+| lib-webp      | ✅              | ❌                  |
+| lib-jpeg      | ✅              | apt, apk, dnf, yum |
+| lib-xpm       | ✅              | ❌                  |
+| lib-freetype2 | ✅              | ❌                  |
+| lib-gdlib     | ✅              | ❌                  |
+| lib-gmp       | ✅              | ❌                  |
+| lib-sasl      | ✅              | ❌                  |
+| lib-onig      | ✅              | ❌                  |
+| lib-odbc      | ✅              | ❌                  |
+| lib-capstone  | ✅              | ❌                  |
+| lib-pcre      | ✅              | ❌                  |
+| lib-edit      | ✅              | ❌                  |
+| lib-snmp      | ✅              | ❌                  |
+| lib-argon2    | ✅              | ❌                  |
+| lib-uriparser | ✅              | ❌                  |
+| lib-exslt     | ✅              | ❌                  |
 
 #### Checking the extension will work
 
