@@ -36,6 +36,7 @@ class ArgvInput extends \Symfony\Component\Console\Input\ArgvInput
 
         parent::parse();
 
+        /** @phpstan-ignore notIdentical.alwaysFalse */
         if ($this->exceptionThrown !== null) {
             throw $this->exceptionThrown;
         }

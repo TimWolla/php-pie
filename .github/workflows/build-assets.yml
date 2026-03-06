@@ -56,10 +56,10 @@ jobs:
         # code, which would store attestation that `php/pie` built the PHAR, and
         # it would look genuine. So this should NOT run for PR builds.
         if: github.event_name != 'pull_request'
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest@v4
         with:
           subject-path: '${{ github.workspace }}/pie.phar'
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: pie-${{ github.sha }}.phar
           path: pie.phar
@@ -124,7 +124,7 @@ jobs:
           echo "PIE_BINARY_OUTPUT=pie-${{ runner.os }}-${{ runner.arch }}.exe" >> $env:GITHUB_ENV
 
       - name: Grab the pie.phar from artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: pie-${{ github.sha }}.phar
 
@@ -151,11 +151,11 @@ jobs:
         # code, which would store attestation that `php/pie` built the binaries,
         # and it would look genuine. So this should NOT run for PR builds.
         if: github.event_name != 'pull_request'
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest@v4
         with:
           subject-path: '${{ github.workspace }}/${{ env.PIE_BINARY_OUTPUT }}'
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: pie-${{ github.sha }}-${{ runner.os }}-${{ runner.arch }}.bin
           path: ${{ env.PIE_BINARY_OUTPUT }}
