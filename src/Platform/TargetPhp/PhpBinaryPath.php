@@ -12,6 +12,7 @@ use Php\Pie\Platform\Architecture;
 use Php\Pie\Platform\DebugBuild;
 use Php\Pie\Platform\OperatingSystem;
 use Php\Pie\Platform\OperatingSystemFamily;
+use Php\Pie\Platform\TargetPhp\Exception\ExtensionPathProblem;
 use Php\Pie\Util\Process;
 use RuntimeException;
 use Symfony\Component\Process\PhpExecutableFinder;
@@ -109,9 +110,10 @@ class PhpBinaryPath
     {
         $phpinfo = $this->phpinfo();
 
+        $extensionPath = null;
+
         if (
             preg_match('#^extension_dir\s+=>\s+([^=]+)\s+=>\s+([^=]+)$#m', $phpinfo, $matches)
-            && array_key_exists(1, $matches)
             && trim($matches[1]) !== ''
             && trim($matches[1]) !== 'no value'
         ) {
@@ -142,7 +144,7 @@ class PhpBinaryPath
             }
         }
 
-        throw new RuntimeException('Could not determine extension path for ' . $this->phpBinaryPath);
+        throw ExtensionPathProblem::new($this, $extensionPath);
     }
 
     public function assertExtensionIsLoadedInRuntime(ExtensionName $extension, IOInterface|null $io = null): void
