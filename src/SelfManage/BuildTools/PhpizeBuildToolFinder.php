@@ -38,14 +38,16 @@ class PhpizeBuildToolFinder extends BinaryBuildToolFinder
             // intentionally ignored - just don't try to use the guessed phpize path
         }
 
+        $expectedApiVersion = $targetPlatform->phpBinaryPath->phpApiVersion();
+
         foreach ($tools as $tool) {
-            if (file_exists($tool) && is_executable($tool) && PhpizePath::looksLikeValidPhpize($tool)) {
+            if (file_exists($tool) && is_executable($tool) && PhpizePath::looksLikeValidPhpize($tool, $expectedApiVersion)) {
                 return true;
             }
 
             $foundTool = (new ExecutableFinder())->find($tool);
 
-            if ($foundTool !== null && PhpizePath::looksLikeValidPhpize($foundTool)) {
+            if ($foundTool !== null && PhpizePath::looksLikeValidPhpize($foundTool, $expectedApiVersion)) {
                 return true;
             }
         }

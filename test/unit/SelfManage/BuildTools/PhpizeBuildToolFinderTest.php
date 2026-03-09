@@ -35,6 +35,7 @@ final class PhpizeBuildToolFinderTest extends TestCase
         putenv('PATH=' . realpath(self::GOOD_PHPIZE_PATH));
 
         $mockPhpBinary = $this->createMock(PhpBinaryPath::class);
+        $mockPhpBinary->method('phpApiVersion')->willReturn('20240924');
         (fn () => $this->phpBinaryPath = '/path/to/php')
             ->bindTo($mockPhpBinary, PhpBinaryPath::class)();
 
@@ -58,6 +59,7 @@ final class PhpizeBuildToolFinderTest extends TestCase
         putenv('PATH=' . realpath(self::BAD_PHPIZE_PATH));
 
         $mockPhpBinary = $this->createMock(PhpBinaryPath::class);
+        $mockPhpBinary->method('phpApiVersion')->willReturn('20240924');
         (fn () => $this->phpBinaryPath = '/path/to/php')
             ->bindTo($mockPhpBinary, PhpBinaryPath::class)();
 
@@ -90,6 +92,30 @@ final class PhpizeBuildToolFinderTest extends TestCase
             ->bindTo($mockPhpBinary, PhpBinaryPath::class)();
 
         self::assertTrue((new PhpizeBuildToolFinder([]))->check(new TargetPlatform(
+            OperatingSystem::NonWindows,
+            OperatingSystemFamily::Linux,
+            $mockPhpBinary,
+            Architecture::x86_64,
+            ThreadSafetyMode::NonThreadSafe,
+            1,
+            null,
+            null,
+        )));
+
+        putenv('PATH=' . $oldPath);
+    }
+
+    public function testPhpizeForDifferentPhpApiVersionIsRejected(): void
+    {
+        $oldPath = getenv('PATH');
+        putenv('PATH=' . realpath(self::GOOD_PHPIZE_PATH));
+
+        $mockPhpBinary = $this->createMock(PhpBinaryPath::class);
+        $mockPhpBinary->method('phpApiVersion')->willReturn('20250925');
+        (fn () => $this->phpBinaryPath = '/path/to/php')
+            ->bindTo($mockPhpBinary, PhpBinaryPath::class)();
+
+        self::assertFalse((new PhpizeBuildToolFinder([]))->check(new TargetPlatform(
             OperatingSystem::NonWindows,
             OperatingSystemFamily::Linux,
             $mockPhpBinary,
