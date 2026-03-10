@@ -295,12 +295,6 @@ parameters:
 			path: src/Platform/InstalledPiePackages.php
 
 		-
-			message: '#^Call to function array_key_exists\(\) with 1 and array\{non\-falsy\-string, non\-empty\-string, non\-empty\-string\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Platform/TargetPhp/PhpBinaryPath.php
-
-		-
 			message: '#^Call to function array_key_exists\(\) with 2 and array\{non\-falsy\-string, string, string\} will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 4
