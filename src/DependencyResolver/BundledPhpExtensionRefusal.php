@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Php\Pie\DependencyResolver;
 
+use Php\Pie\Platform\TargetPhp\PhpBinaryPath;
 use RuntimeException;
 
 use function sprintf;
@@ -22,6 +23,14 @@ class BundledPhpExtensionRefusal extends RuntimeException
             PHP_EOL,
             PHP_EOL,
             $package->name(),
+        ));
+    }
+
+    public static function forPhpExtraVersion(PhpBinaryPath $phpBinaryPath): self
+    {
+        return new self(sprintf(
+            'Cannot install bundled PHP extension for non-stable versions of PHP (detected: %s)',
+            $phpBinaryPath->phpVersionWithExtra(),
         ));
     }
 }

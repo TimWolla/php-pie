@@ -15,12 +15,15 @@ use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositoryManager;
 use Composer\Semver\Constraint\Constraint;
+use Php\Pie\ComposerIntegration\BundledPhpExtensionsRepository;
 use Php\Pie\ComposerIntegration\QuieterConsoleIO;
+use Php\Pie\DependencyResolver\BundledPhpExtensionRefusal;
 use Php\Pie\DependencyResolver\IncompatibleOperatingSystemFamily;
 use Php\Pie\DependencyResolver\IncompatibleThreadSafetyMode;
 use Php\Pie\DependencyResolver\RequestedPackageAndVersion;
 use Php\Pie\DependencyResolver\ResolveDependencyWithComposer;
 use Php\Pie\DependencyResolver\UnableToResolveRequirement;
+use Php\Pie\ExtensionType;
 use Php\Pie\Platform\Architecture;
 use Php\Pie\Platform\OperatingSystem;
 use Php\Pie\Platform\OperatingSystemFamily;
@@ -49,13 +52,21 @@ final class ResolveDependencyWithComposerTest extends TestCase
         ]);
         $this->localRepo = $this->createMock(InstalledRepositoryInterface::class);
         $this->localRepo->method('getPackages')->willReturn([
-            new CompletePackage('already/installed1', '1.2.3.0', '1.2.3'),
+            new CompletePackage('a/installed1', '1.2.3.0', '1.2.3'),
             $packageWithReplaces,
         ]);
 
+        $bundledPhpPackage = new CompletePackage('php/bundled', '8.3.0', '8.3.0.0');
+        $bundledPhpPackage->setType(ExtensionType::PhpModule->value);
+
         $repoManager = $this->createMock(RepositoryManager::class);
         $repoManager->method('getRepositories')
-            ->willReturn([new CompositeRepository(RepositoryFactory::defaultReposWithDefaultManager(new NullIO()))]);
+            ->willReturn([
+                new CompositeRepository([
+                    ...RepositoryFactory::defaultReposWithDefaultManager(new NullIO()),
+                    new BundledPhpExtensionsRepository([$bundledPhpPackage]),
+                ]),
+            ]);
         $repoManager->method('getLocalRepository')->willReturn($this->localRepo);
 
         $this->composer = $this->createMock(Composer::class);
@@ -414,5 +425,120 @@ final class ResolveDependencyWithComposerTest extends TestCase
 
         self::assertSame('asgrim/example-pie-extension', $package->name());
         self::assertStringStartsWith('1.', $package->version());
+    }
+
+    public function testBundledExtensionCannotBeInstalledOnDevPhpVersion(): void
+    {
+        $phpBinaryPath = $this->createMock(PhpBinaryPath::class);
+        $phpBinaryPath->expects(self::any())
+            ->method('version')
+            ->willReturn('8.3.0');
+        $phpBinaryPath->expects(self::any())
+            ->method('phpVersionWithExtra')
+            ->willReturn('8.3.0-dev');
+
+        $targetPlatform = new TargetPlatform(
+            OperatingSystem::NonWindows,
+            OperatingSystemFamily::Linux,
+            $phpBinaryPath,
+            Architecture::x86_64,
+            ThreadSafetyMode::ThreadSafe,
+            1,
+            null,
+            null,
+        );
+
+        $resolver         = new ResolveDependencyWithComposer(
+            $this->createMock(IOInterface::class),
+            $this->createMock(QuieterConsoleIO::class),
+        );
+        $requestedPackage = new RequestedPackageAndVersion('php/bundled', null);
+
+        $this->expectException(BundledPhpExtensionRefusal::class);
+        $this->expectExceptionMessage('Cannot install bundled PHP extension for non-stable versions of PHP');
+        $resolver->__invoke($this->composer, $targetPlatform, $requestedPackage, false);
+    }
+
+    /** @return array<non-empty-string, array{0: non-empty-string}> */
+    public function buildProvidersWithBundledExtensionWarnings(): array
+    {
+        return [
+            'Docker' => ['https://github.com/docker-library/php'],
+            'Debian/Ubuntu' => ['Debian'],
+            'Remi Repo' => ['Remi\'s RPM repository <https://rpms.remirepo.net/> #StandWithUkraine'],
+            'Brew' => ['Homebrew'],
+        ];
+    }
+
+    #[DataProvider('buildProvidersWithBundledExtensionWarnings')]
+    public function testBundledExtensionWillNotInstallOnBuildProviderWithoutForce(string $buildProvider): void
+    {
+        $phpBinaryPath = $this->createMock(PhpBinaryPath::class);
+        $phpBinaryPath->expects(self::any())
+            ->method('version')
+            ->willReturn('8.3.0');
+        $phpBinaryPath->expects(self::any())
+            ->method('phpVersionWithExtra')
+            ->willReturn('8.3.0');
+        $phpBinaryPath->expects(self::any())
+            ->method('buildProvider')
+            ->willReturn($buildProvider);
+
+        $targetPlatform = new TargetPlatform(
+            OperatingSystem::NonWindows,
+            OperatingSystemFamily::Linux,
+            $phpBinaryPath,
+            Architecture::x86_64,
+            ThreadSafetyMode::ThreadSafe,
+            1,
+            null,
+            null,
+        );
+
+        $resolver         = new ResolveDependencyWithComposer(
+            $this->createMock(IOInterface::class),
+            $this->createMock(QuieterConsoleIO::class),
+        );
+        $requestedPackage = new RequestedPackageAndVersion('php/bundled', null);
+
+        $this->expectException(BundledPhpExtensionRefusal::class);
+        $this->expectExceptionMessage('Bundled PHP extension php/bundled should be installed by your distribution, not by PIE');
+        $resolver->__invoke($this->composer, $targetPlatform, $requestedPackage, false);
+    }
+
+    #[DataProvider('buildProvidersWithBundledExtensionWarnings')]
+    public function testBundledExtensionWillInstallOnBuildProviderWithForce(string $buildProvider): void
+    {
+        $phpBinaryPath = $this->createMock(PhpBinaryPath::class);
+        $phpBinaryPath->expects(self::any())
+            ->method('version')
+            ->willReturn('8.3.0');
+        $phpBinaryPath->expects(self::any())
+            ->method('phpVersionWithExtra')
+            ->willReturn('8.3.0');
+        $phpBinaryPath->expects(self::any())
+            ->method('buildProvider')
+            ->willReturn($buildProvider);
+
+        $targetPlatform = new TargetPlatform(
+            OperatingSystem::NonWindows,
+            OperatingSystemFamily::Linux,
+            $phpBinaryPath,
+            Architecture::x86_64,
+            ThreadSafetyMode::ThreadSafe,
+            1,
+            null,
+            null,
+        );
+
+        $resolver         = new ResolveDependencyWithComposer(
+            $this->createMock(IOInterface::class),
+            $this->createMock(QuieterConsoleIO::class),
+        );
+        $requestedPackage = new RequestedPackageAndVersion('php/bundled', null);
+
+        $package = $resolver->__invoke($this->composer, $targetPlatform, $requestedPackage, true);
+
+        self::assertSame('php/bundled', $package->name());
     }
 }
