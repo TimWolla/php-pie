@@ -329,6 +329,19 @@ PHP,
     }
 
     /** @return non-empty-string */
+    public function phpVersionWithExtra(): string
+    {
+        $phpVersionWithExtra = self::cleanWarningAndDeprecationsFromOutput(Process::run([
+            $this->phpBinaryPath,
+            '-r',
+            'echo PHP_VERSION;',
+        ]));
+        Assert::stringNotEmpty($phpVersionWithExtra, 'Could not determine PHP_VERSION');
+
+        return $phpVersionWithExtra;
+    }
+
+    /** @return non-empty-string */
     public function majorMinorVersion(): string
     {
         $phpVersion = self::cleanWarningAndDeprecationsFromOutput(Process::run([

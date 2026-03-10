@@ -17,6 +17,7 @@ use Php\Pie\Platform\ThreadSafetyMode;
 use function in_array;
 use function preg_match;
 use function sprintf;
+use function str_ends_with;
 
 /** @internal This is not public API for PIE, so should not be depended upon unless you accept the risk of BC breaks */
 final class ResolveDependencyWithComposer implements DependencyResolver
@@ -107,6 +108,10 @@ final class ResolveDependencyWithComposer implements DependencyResolver
     {
         if (! $piePackage->isBundledPhpExtension()) {
             return;
+        }
+
+        if (str_ends_with($targetPlatform->phpBinaryPath->phpVersionWithExtra(), '-dev')) {
+            throw BundledPhpExtensionRefusal::forPhpExtraVersion($targetPlatform->phpBinaryPath);
         }
 
         $buildProvider           = $targetPlatform->phpBinaryPath->buildProvider();
