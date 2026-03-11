@@ -51,6 +51,7 @@ The following extensions have already added support for PIE:
 | geospatial     | [php-geospatial/geospatial](https://packagist.org/packages/php-geospatial/geospatial)               |
 | gettext        | php/gettext                                                                                         |
 | gmp            | php/gmp                                                                                             |
+| gRPC           | [bsn4/grpc](https://packagist.org/packages/bsn4/grpc) *(drop-in Rust replacement for ext-grpc)*    |
 | gpio           | [embedded-php/gpio](https://packagist.org/packages/embedded-php/gpio)                               |
 | i2c            | [embedded-php/i2c](https://packagist.org/packages/embedded-php/i2c)                                 |
 | iconv          | php/iconv                                                                                           |
@@ -182,7 +183,6 @@ The following extensions exist on PECL, but either have not added support for PI
 * gmagick
 * gnupg
 * graphdat
-* gRPC
 * handlebars
 * hprose
 * http_message
