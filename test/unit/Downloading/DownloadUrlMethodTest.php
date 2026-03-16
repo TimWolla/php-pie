@@ -149,6 +149,8 @@ final class DownloadUrlMethodTest extends TestCase
             [
                 'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug-zts.zip',
                 'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug-zts.tgz',
+                'php_bar-1.2.3_php8.3-x86_64-linux-anylibc-debug-zts.zip',
+                'php_bar-1.2.3_php8.3-x86_64-linux-anylibc-debug-zts.tgz',
             ],
             $downloadUrlMethod->possibleAssetNames($package, $targetPlatform),
         );
@@ -227,6 +229,10 @@ final class DownloadUrlMethodTest extends TestCase
                 'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug.tgz',
                 'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug-nts.zip',
                 'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug-nts.tgz',
+                'php_bar-1.2.3_php8.3-x86_64-linux-anylibc-debug.zip',
+                'php_bar-1.2.3_php8.3-x86_64-linux-anylibc-debug.tgz',
+                'php_bar-1.2.3_php8.3-x86_64-linux-anylibc-debug-nts.zip',
+                'php_bar-1.2.3_php8.3-x86_64-linux-anylibc-debug-nts.tgz',
             ],
             $firstMethod->possibleAssetNames($package, $targetPlatform),
         );

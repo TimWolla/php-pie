@@ -46,6 +46,10 @@ final class PrePackagedBinaryAssetNameTest extends TestCase
                 'php_foobar-1.2.3_php8.2-x86_64-linux-' . $libc->value . '.tgz',
                 'php_foobar-1.2.3_php8.2-x86_64-linux-' . $libc->value . '-nts.zip',
                 'php_foobar-1.2.3_php8.2-x86_64-linux-' . $libc->value . '-nts.tgz',
+                'php_foobar-1.2.3_php8.2-x86_64-linux-anylibc.zip',
+                'php_foobar-1.2.3_php8.2-x86_64-linux-anylibc.tgz',
+                'php_foobar-1.2.3_php8.2-x86_64-linux-anylibc-nts.zip',
+                'php_foobar-1.2.3_php8.2-x86_64-linux-anylibc-nts.tgz',
             ],
             PrePackagedBinaryAssetName::packageNames(
                 $targetPlatform,
@@ -83,6 +87,8 @@ final class PrePackagedBinaryAssetNameTest extends TestCase
             [
                 'php_foobar-1.2.3_php8.3-x86_64-linux-' . $libc->value . '-zts.zip',
                 'php_foobar-1.2.3_php8.3-x86_64-linux-' . $libc->value . '-zts.tgz',
+                'php_foobar-1.2.3_php8.3-x86_64-linux-anylibc-zts.zip',
+                'php_foobar-1.2.3_php8.3-x86_64-linux-anylibc-zts.tgz',
             ],
             PrePackagedBinaryAssetName::packageNames(
                 $targetPlatform,
