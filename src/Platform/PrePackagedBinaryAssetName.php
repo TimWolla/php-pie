@@ -21,10 +21,10 @@ final class PrePackagedBinaryAssetName
     /** @return non-empty-list<non-empty-string> */
     public static function packageNames(TargetPlatform $targetPlatform, Package $package): array
     {
-        $debug = $targetPlatform->phpBinaryPath->debugMode() === DebugBuild::Debug ? '-debug' : '';
-        $tsNoSuffix = $targetPlatform->threadSafety === ThreadSafetyMode::ThreadSafe ? '-zts' : '';
+        $debug        = $targetPlatform->phpBinaryPath->debugMode() === DebugBuild::Debug ? '-debug' : '';
+        $tsNoSuffix   = $targetPlatform->threadSafety === ThreadSafetyMode::ThreadSafe ? '-zts' : '';
         $tsWithSuffix = $targetPlatform->threadSafety === ThreadSafetyMode::ThreadSafe ? '-zts' : '-nts';
-        $libc = $targetPlatform->libcFlavour()->value;
+        $libc         = $targetPlatform->libcFlavour()->value;
 
         $name    = $package->extensionName()->name();
         $version = $package->version();
