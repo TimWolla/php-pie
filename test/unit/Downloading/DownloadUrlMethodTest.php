@@ -145,10 +145,13 @@ final class DownloadUrlMethodTest extends TestCase
 
         self::assertSame(DownloadUrlMethod::PrePackagedBinary, $downloadUrlMethod);
 
+        // TargetPlatform doesn't have the libc specified, so the assertion needs to be made
+        // against the test machine's libc
+        $libc = $targetPlatform->libcFlavour()->value;
         self::assertSame(
             [
-                'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug-zts.zip',
-                'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug-zts.tgz',
+                'php_bar-1.2.3_php8.3-x86_64-linux-' . $libc . '-debug-zts.zip',
+                'php_bar-1.2.3_php8.3-x86_64-linux-' . $libc . '-debug-zts.tgz',
                 'php_bar-1.2.3_php8.3-x86_64-linux-anylibc-debug-zts.zip',
                 'php_bar-1.2.3_php8.3-x86_64-linux-anylibc-debug-zts.tgz',
             ],
@@ -223,12 +226,15 @@ final class DownloadUrlMethodTest extends TestCase
 
         $firstMethod = $downloadUrlMethods[0];
         self::assertSame(DownloadUrlMethod::PrePackagedBinary, $firstMethod);
+        // TargetPlatform doesn't have the libc specified, so the assertion needs to be made
+        // against the test machine's libc
+        $libc = $targetPlatform->libcFlavour()->value;
         self::assertSame(
             [
-                'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug.zip',
-                'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug.tgz',
-                'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug-nts.zip',
-                'php_bar-1.2.3_php8.3-x86_64-linux-glibc-debug-nts.tgz',
+                'php_bar-1.2.3_php8.3-x86_64-linux-' . $libc . '-debug.zip',
+                'php_bar-1.2.3_php8.3-x86_64-linux-' . $libc . '-debug.tgz',
+                'php_bar-1.2.3_php8.3-x86_64-linux-' . $libc . '-debug-nts.zip',
+                'php_bar-1.2.3_php8.3-x86_64-linux-' . $libc . '-debug-nts.tgz',
                 'php_bar-1.2.3_php8.3-x86_64-linux-anylibc-debug.zip',
                 'php_bar-1.2.3_php8.3-x86_64-linux-anylibc-debug.tgz',
                 'php_bar-1.2.3_php8.3-x86_64-linux-anylibc-debug-nts.zip',
