@@ -33,10 +33,11 @@ curl -fL --output /tmp/pie.phar https://github.com/php/pie/releases/latest/downl
 
 ### Docker installation
 
-PIE is published as binary-only Docker image, so you can install it easily during your Docker build:
+PIE is published as binary-only Docker image, so you can use it easily during your Docker build:
 
 ```Dockerfile
-COPY --from=ghcr.io/php/pie:bin /pie /usr/bin/pie
+RUN --mount=type=bind,from=ghcr.io/php/pie:bin,source=/pie,target=/usr/local/bin/pie \
+    pie -V
 ```
 
 Instead of `bin` tag (which represents latest binary-only image) you can also use explicit version (in `x.y.z-bin` format). Use [GitHub registry](https://ghcr.io/php/pie) to find available tags.
@@ -54,17 +55,20 @@ installed.
 ```Dockerfile
 FROM php:8.4-cli
 
-# Add the `unzip` package which PIE uses to extract .zip files
-RUN export DEBIAN_FRONTEND="noninteractive"; \
+RUN --mount=type=bind,from=ghcr.io/php/pie:bin,source=/pie,target=/usr/local/bin/pie \
+    export DEBIAN_FRONTEND="noninteractive"; \
     set -eux; \
-    apt-get update; apt-get install -y --no-install-recommends unzip; \
-    rm -rf /var/lib/apt/lists/*
+    # Add the `unzip` package which PIE uses to extract .zip files.
+    apt-get update; \
+    apt-get install -y --no-install-recommends unzip; \
+    # Use PIE to install an extension...
+    pie install asgrim/example-pie-extension; \
+    # Clean up `unzip`.
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false unzip; \
+    rm -rf /var/lib/apt/lists/*;
 
-# Copy the pie.phar from the latest `:bin` release
-COPY --from=ghcr.io/php/pie:bin /pie /usr/bin/pie
 
-# Use PIE to install an extension...
-RUN pie install asgrim/example-pie-extension
+CMD ["php", "-r", "example_pie_extension_test();"]
 ```
 
 If the extension you would like to install needs additional libraries or other
